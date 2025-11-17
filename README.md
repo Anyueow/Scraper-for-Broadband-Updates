@@ -256,6 +256,45 @@ AI_USE_CASES = {
 }
 ```
 
+## Title Analysis Tool
+
+The `title_analysis.py` script analyzes article titles from CSV output files to identify AI-related keyword mentions.
+
+### Usage
+
+```bash
+# Analyze all CSV files in the output directory
+python title_analysis.py
+
+# Specify a custom directory
+python title_analysis.py --directory data/processed
+
+# Export results to CSV
+python title_analysis.py --export
+
+# Custom export file
+python title_analysis.py --export --output my_analysis.csv
+```
+
+### Keywords Detected
+
+The script searches for the following AI-related keywords in article titles:
+- AI, artificial intelligence
+- Machine learning, deep learning
+- LLMs, large language models
+- OpenAI, Anthropic, Claude
+- ChatGPT, GPT
+- Neural networks
+- Automation
+
+### Output
+
+The tool provides:
+- **Summary statistics**: Total articles analyzed, percentage with AI keywords
+- **Keyword frequency**: Count of each keyword mention
+- **Detailed listing**: All articles with AI keywords, including source, date, and URL
+- **CSV export** (optional): Structured data for further analysis
+
 ## Troubleshooting
 
 ### Common Issues

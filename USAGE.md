@@ -356,6 +356,79 @@ Check the HTML structure of the website - it may have changed. Update the scrape
 - Clear old output files
 - Process sources individually
 
+## Title Analysis
+
+### Analyzing Article Titles for AI Keywords
+
+After running the pipeline and generating CSV files, use the `title_analysis.py` script to analyze article titles for AI-related keyword mentions.
+
+```bash
+# Basic usage - analyze all CSVs in output/
+python title_analysis.py
+
+# Specify custom directory
+python title_analysis.py --directory data/processed
+
+# Export results to CSV
+python title_analysis.py --export
+
+# Specify custom output file
+python title_analysis.py --export --output results.csv
+```
+
+### Understanding the Output
+
+The script provides detailed analysis including:
+
+1. **File Summary**: Number of CSV files analyzed
+2. **Article Statistics**: Total articles and percentage with AI keywords
+3. **Keyword Frequency**: Count of each keyword found in titles
+4. **Article Details**: Full list of articles with AI keywords, including:
+   - Article title
+   - Source (thinkBroadband, fibrenews, ispreview)
+   - Publication date
+   - Keywords found
+   - Article URL
+
+### Programmatic Usage
+
+```python
+from pathlib import Path
+from title_analysis import TitleAnalyzer
+
+# Create analyzer
+analyzer = TitleAnalyzer()
+
+# Analyze directory
+results = analyzer.analyze_directory(Path('output'))
+
+# Access results
+print(f"Total articles: {results['total_articles']}")
+print(f"Articles with AI: {results['total_with_ai_keywords']}")
+
+# Print summary
+analyzer.print_summary(results)
+
+# Export to CSV
+analyzer.export_results(results, Path('my_results.csv'))
+```
+
+### Custom Keywords
+
+You can analyze for custom keywords by creating your own analyzer:
+
+```python
+from title_analysis import TitleAnalyzer
+
+# Custom keyword list
+custom_keywords = ["5G", "fiber", "FTTP", "gigabit"]
+analyzer = TitleAnalyzer(keywords=custom_keywords)
+
+# Run analysis
+results = analyzer.analyze_directory(Path('output'))
+analyzer.print_summary(results)
+```
+
 ## Examples
 
 See complete working examples in the `examples/` directory (if available).
