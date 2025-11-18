@@ -202,6 +202,95 @@ class BroadbandAIAnalyzer:
 
         return content
 
+    def contains_ai_keywords(self, title: str, content: str) -> bool:
+        """
+        Check if article contains AI-related keywords (case-insensitive).
+        This is used to pre-filter articles before expensive LLM analysis.
+
+        IMPORTANT: Searches BOTH title AND content for AI keywords.
+
+        Args:
+            title: Article title
+            content: Article content (full article text)
+
+        Returns:
+            True if AI keywords found in title OR content, False otherwise
+        """
+        # AI-related keywords to search for
+        ai_keywords = [
+            r'\bAI\b',
+            r'\bartificial intelligence\b',
+            r'\bmachine learning\b',
+            r'\bML\b',
+            r'\bLLMs?\b',
+            r'\blarge language models?\b',
+            r'\bOpenAI\b',
+            r'\bAnthropic\b',
+            r'\bClaude\b',
+            r'\bChatGPT\b',
+            r'\bneural network',
+            r'\bdeep learning\b',
+            r'\bautomation\b',
+            r'\bchatbots?\b',
+            r'\bvirtual assistant',
+            r'\bpredictive analytics\b',
+            r'\bdata science\b',
+            r'\balgorithm',
+        ]
+
+        # Combine BOTH title AND content for comprehensive search
+        text = f"{title} {content}".lower()
+
+        # Check each keyword pattern
+        for keyword_pattern in ai_keywords:
+            if re.search(keyword_pattern, text, re.IGNORECASE):
+                return True
+
+        return False
+
+    def extract_ai_keywords_from_text(self, text: str) -> Tuple[List[str], int]:
+        """
+        Extract AI keywords found in a specific text (e.g., title only).
+
+        Args:
+            text: Text to search
+
+        Returns:
+            Tuple of (list of found keywords, count of keywords)
+        """
+        if not text:
+            return ([], 0)
+
+        text_lower = text.lower()
+        found_keywords = []
+
+        # AI keywords to search for
+        keyword_patterns = {
+            r'\bAI\b': 'AI',
+            r'\bartificial intelligence\b': 'artificial intelligence',
+            r'\bmachine learning\b': 'machine learning',
+            r'\bML\b': 'ML',
+            r'\bLLMs?\b': 'LLM',
+            r'\blarge language models?\b': 'large language model',
+            r'\bOpenAI\b': 'OpenAI',
+            r'\bAnthropic\b': 'Anthropic',
+            r'\bClaude\b': 'Claude',
+            r'\bChatGPT\b': 'ChatGPT',
+            r'\bneural network': 'neural network',
+            r'\bdeep learning\b': 'deep learning',
+            r'\bautomation\b': 'automation',
+            r'\bchatbots?\b': 'chatbot',
+            r'\bvirtual assistant': 'virtual assistant',
+            r'\bpredictive analytics\b': 'predictive analytics',
+        }
+
+        for pattern, keyword_name in keyword_patterns.items():
+            if re.search(pattern, text_lower, re.IGNORECASE):
+                if keyword_name not in found_keywords:
+                    found_keywords.append(keyword_name)
+
+        return (found_keywords, len(found_keywords))
+
     def create_analysis_prompt(self, title: str, content: str, source: str, date: str) -> str:
         """
         Create a structured prompt for LLM analysis.
@@ -302,6 +391,22 @@ Example response format:
                 'ai_use_cases': [],
                 'sentiment': 'not_applicable',
                 'summary': 'Content unavailable - blocked by anti-bot protection'
+            }
+            self.cache[cache_key] = result
+            return result
+
+        # PRE-FILTER: Check if article contains AI keywords
+        # If no AI keywords found, skip expensive LLM analysis
+        if not self.contains_ai_keywords(title, content):
+            result = {
+                'has_ai_content': False,
+                'ai_mentions': [],
+                'ai_mention_count': 0,
+                'primary_use_case': None,
+                'primary_use_case_confidence': 0.0,
+                'ai_use_cases': [],
+                'sentiment': 'not_applicable',
+                'summary': f'Article about {source} broadband/telecom news without AI mentions'
             }
             self.cache[cache_key] = result
             return result
@@ -494,6 +599,9 @@ Example response format:
                     url=row['url']
                 )
 
+                # Extract AI keywords from title specifically
+                title_ai_keywords, title_ai_count = self.extract_ai_keywords_from_text(row['title'])
+
                 # Combine original data with analysis
                 result = {
                     **row.to_dict(),
@@ -503,6 +611,8 @@ Example response format:
                     'sentiment': analysis['sentiment'],
                     'ai_mention_count': analysis['ai_mention_count'],
                     'ai_mentions': ','.join(analysis['ai_mentions']),
+                    'title_ai_mentions': ','.join(title_ai_keywords),
+                    'title_ai_mention_count': title_ai_count,
                     'summary': analysis['summary']
                 }
 
@@ -523,6 +633,8 @@ Example response format:
                     'sentiment': 'not_applicable',
                     'ai_mention_count': 0,
                     'ai_mentions': '',
+                    'title_ai_mentions': '',
+                    'title_ai_mention_count': 0,
                     'summary': 'Analysis error'
                 })
 
@@ -554,12 +666,13 @@ Example response format:
         # Process through LLM
         results_df = self.process_articles(df)
 
-        # Reorder columns to match target schema
+        # Reorder columns to match target schema (with title AI mentions added)
         column_order = [
             'source', 'date', 'title', 'url',
             'primary_use_case', 'primary_use_case_confidence',
             'ai_use_cases', 'sentiment',
             'ai_mention_count', 'ai_mentions',
+            'title_ai_mention_count', 'title_ai_mentions',
             'word_count', 'summary'
         ]
 
@@ -587,7 +700,7 @@ Example response format:
 def main():
     """Main execution function."""
     # Initialize analyzer
-    # Change model_name to "kimi-k2-thinking:cloud" once you update Ollama
+    # Using kimi-k2-thinking:cloud (Ollama Cloud model with advanced reasoning)
     analyzer = BroadbandAIAnalyzer(
         model_name="kimi-k2-thinking:cloud",
         fallback_model="qwen2.5:32b"
