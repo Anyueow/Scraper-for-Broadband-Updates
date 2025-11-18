@@ -53,6 +53,7 @@ def monitor_progress(cache_file="analysis_cache.json", check_interval=30):
 
                     # Calculate processing rate
                     elapsed = time.time() - start_time
+                    rate = 0.0  # Initialize rate to avoid NameError
                     if elapsed > 0:
                         rate = processed / elapsed
                         if rate > 0:

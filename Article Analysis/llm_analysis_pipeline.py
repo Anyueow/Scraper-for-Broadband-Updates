@@ -481,13 +481,23 @@ Example response format:
 
     def _validate_analysis_result(self, result: Dict) -> Dict:
         """Validate and clean the LLM analysis result."""
+        # Safely convert confidence to float, handling non-numeric values
+        confidence_value = result.get('primary_use_case_confidence', 0.0)
+        try:
+            confidence_float = float(confidence_value)
+            # Clamp to valid range [0.0, 1.0]
+            confidence_float = max(0.0, min(1.0, confidence_float))
+        except (ValueError, TypeError):
+            # If conversion fails, default to 0.0
+            confidence_float = 0.0
+        
         # Ensure all required fields exist with defaults
         validated = {
             'has_ai_content': result.get('has_ai_content', False),
             'ai_mentions': result.get('ai_mentions', []),
             'ai_mention_count': result.get('ai_mention_count', 0),
             'primary_use_case': result.get('primary_use_case'),
-            'primary_use_case_confidence': float(result.get('primary_use_case_confidence', 0.0)),
+            'primary_use_case_confidence': confidence_float,
             'ai_use_cases': result.get('ai_use_cases', []),
             'sentiment': result.get('sentiment', 'not_applicable'),
             'summary': result.get('summary', '')
