@@ -1,118 +1,176 @@
-"""
-Scraper for thinkBroadband news archive
-"""
-from typing import List, Dict, Optional
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+import csv
+import os
 from datetime import datetime
-import re
-import logging
-from .base_scraper import BaseScraper
+import time
 
-logger = logging.getLogger(__name__)
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; tbb-scraper/1.0)"
+}
+
+ARCHIVE_URL = "https://www.thinkbroadband.com/news/archive"
+BASE_URL = "https://www.thinkbroadband.com"
 
 
-class ThinkBroadbandScraper(BaseScraper):
-    """Scraper for thinkbroadband.com news"""
+def fetch_html(url: str) -> str:
+    resp = requests.get(url, headers=HEADERS, timeout=20)
+    resp.raise_for_status()
+    return resp.text
 
-    def __init__(self, base_url: str, user_agent: str, timeout: int = 30):
-        super().__init__("thinkBroadband", base_url, user_agent, timeout)
-        self.news_url = f"{base_url}/news"
 
-    def scrape_article_list(self, max_pages: int = 10) -> List[Dict]:
-        """Scrape article list from news archive"""
-        articles = []
+def extract_article_body(html: str) -> str:
+    """
+    Extract main article text from a thinkbroadband article page.
 
-        for page in range(1, max_pages + 1):
-            url = f"{self.news_url}?page={page}" if page > 1 else self.news_url
-            soup = self.fetch_page(url)
+    NOTE: You may need to tweak the selectors below once you inspect
+    one full article page – this is the only "site-specific" part.
+    """
+    soup = BeautifulSoup(html, "html.parser")
 
-            if not soup:
-                break
+    # Try a few likely containers in order of preference
+    candidates = [
+        "article",                    # generic <article> tag
+        "div.news-article-body",      # example class
+        "div#news-article-body",
+        "div.article-body",
+        "div.col-md-9.col-lg-10"     # Specific to thinkbroadband article content
+    ]
 
-            # Find article elements (structure may vary - this is a best-effort approach)
-            article_elements = soup.find_all(['article', 'div'], class_=re.compile(r'news|article|story'))
+    container = None
+    for sel in candidates:
+        container = soup.select_one(sel)
+        if container:
+            break
 
-            if not article_elements:
-                # Fallback: try to find articles by common patterns
-                article_elements = soup.find_all('div', class_=re.compile(r'item|post|entry'))
+    if not container:
+        # Fallback: just grab all text from main content column if needed
+        container = soup.body
 
-            if not article_elements:
-                logger.warning(f"No articles found on page {page}")
-                break
+    if container:
+        # Remove unwanted elements
+        for tag in container.find_all(['script', 'style', 'nav', 'aside', 'footer', 'header']):
+            tag.decompose()
+        
+        text = container.get_text(" ", strip=True)
+        return " ".join(text.split())  # normalize whitespace
+    else:
+        return ""
 
-            for element in article_elements:
-                try:
-                    article_data = self._parse_article_element(element)
-                    if article_data:
-                        articles.append(article_data)
-                except Exception as e:
-                    logger.warning(f"Failed to parse article element: {e}")
 
-            logger.info(f"Scraped page {page}: {len(article_elements)} articles")
+def parse_archive_page(html: str, base_url: str):
+    """
+    Yield dicts with: title, url, date, content
+    for each row in the archive.
+    """
+    soup = BeautifulSoup(html, "html.parser")
 
-        return articles
+    # Each article row:
+    rows = soup.select("div.row.py-2.border-bottom")
+    
+    # If that selector doesn't work, try alternative selectors
+    if not rows:
+        rows = soup.select("div.news-item, article, div.article-item")
 
-    def _parse_article_element(self, element) -> Optional[Dict]:
-        """Parse individual article element"""
-        # Try to find title
-        title_elem = element.find(['h2', 'h3', 'h4', 'a'])
-        if not title_elem:
-            return None
-
-        title = title_elem.get_text(strip=True)
-
-        # Try to find URL
-        link_elem = element.find('a', href=True)
-        if not link_elem:
-            return None
-
-        url = link_elem['href']
-        if not url.startswith('http'):
-            url = self.base_url + url
-
-        # Try to find date
-        date_elem = element.find(['time', 'span'], class_=re.compile(r'date|time|published'))
-        date_str = date_elem.get_text(strip=True) if date_elem else None
-        if date_elem and date_elem.get('datetime'):
-            date_str = date_elem['datetime']
-
-        # Try to find summary/excerpt
-        summary_elem = element.find(['p', 'div'], class_=re.compile(r'summary|excerpt|description'))
-        summary = summary_elem.get_text(strip=True) if summary_elem else ""
-
-        return {
-            'source': self.source_name,
-            'title': title,
-            'url': url,
-            'date': date_str,
-            'summary': summary
-        }
-
-    def scrape_article_content(self, url: str) -> Optional[Dict]:
-        """Scrape full article content"""
-        soup = self.fetch_page(url)
-        if not soup:
-            return None
-
+    for i, row in enumerate(rows, 1):
         try:
-            # Find main content area
-            content_elem = soup.find(['article', 'div'], class_=re.compile(r'content|article-body|entry-content|post-content'))
+            # ---- title + link ----
+            link = row.select_one("div.col-md-9.news-archive-title a.text-decoration-none")
+            if not link:
+                # Try alternative selectors
+                link = row.select_one("a[href*='/news/'], a.article-link, h2 a, h3 a")
+            
+            if not link:
+                continue
 
-            if not content_elem:
-                # Fallback: try to find main tag
-                content_elem = soup.find('main')
+            url = urljoin(base_url, link.get("href"))
 
-            if content_elem:
-                # Extract text, removing scripts and styles
-                for tag in content_elem.find_all(['script', 'style', 'nav', 'aside', 'footer']):
-                    tag.decompose()
+            # The <a> contains "<strong>Title: </strong>Actual title"
+            # so strip out the "Title:" label and keep the remaining text.
+            title_parts = []
+            for txt in link.stripped_strings:
+                if "title:" in txt.lower():   # skip the label
+                    continue
+                title_parts.append(txt)
+            title = " ".join(title_parts) if title_parts else link.get_text(strip=True)
 
-                full_content = content_elem.get_text(separator=' ', strip=True)
-            else:
-                full_content = ""
+            # ---- date ----
+            date_div = row.select_one("div.col-md-3.news-archive-title")
+            if not date_div:
+                date_div = row.select_one("time, .date, .published-date")
+            date = date_div.get_text(strip=True) if date_div else ""
 
-            return {
-                'content': full_content
+            # ---- article content (follow link) ----
+            print(f"  [{i}/{len(rows)}] Fetching content for: {title[:50]}...")
+            article_html = fetch_html(url)
+            content = extract_article_body(article_html)
+            time.sleep(1)  # Rate limiting
+
+            yield {
+                "title": title,
+                "url": url,
+                "date": date,
+                "content": content,
             }
         except Exception as e:
-            logger.error(f"Failed to scrape content from {url}: {e}")
-            return {'content': ""}
+            print(f"  Error processing row {i}: {e}")
+            continue
+
+
+def scrape_thinkbroadband_archive(archive_url: str):
+    html = fetch_html(archive_url)
+    return list(parse_archive_page(html, archive_url))
+
+
+def export_to_csv(articles: list, output_dir: str = "Scraped Output", filename: str = None):
+    """Export articles to CSV with the specified format"""
+    # Create output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Generate CSV filename
+    if filename is None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = os.path.join(output_dir, f"thinkbroadband_articles_{timestamp}.csv")
+    else:
+        filename = os.path.join(output_dir, filename)
+    
+    # Write to CSV with exact column names
+    with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ['Website source', 'Article Title', 'Article Link', 'Date', 'Article Content']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        # Write header
+        writer.writeheader()
+        
+        # Write articles
+        for article in articles:
+            writer.writerow({
+                'Website source': BASE_URL,
+                'Article Title': article.get('title', ''),
+                'Article Link': article.get('url', ''),
+                'Date': article.get('date', ''),
+                'Article Content': article.get('content', '')
+            })
+    
+    print(f"✅ Exported {len(articles)} articles to: {filename}")
+    return filename
+
+
+if __name__ == "__main__":
+    print(f"Scraping articles from: {ARCHIVE_URL}")
+    print("Fetching full article content...")
+    articles = scrape_thinkbroadband_archive(ARCHIVE_URL)
+    
+    if articles:
+        export_to_csv(articles)
+        
+        # Print summary
+        print(f"\n✅ Scraped {len(articles)} articles")
+        print("\nSample articles:")
+        for i, a in enumerate(articles[:3], 1):
+            print(f"\n[{i}] {a['date']} - {a['title']}")
+            print(f"    URL: {a['url']}")
+            print(f"    Content preview: {a['content'][:100]}...")
+    else:
+        print("No articles found.")

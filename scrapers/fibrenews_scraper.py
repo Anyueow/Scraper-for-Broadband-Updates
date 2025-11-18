@@ -1,124 +1,72 @@
-"""
-Scraper for Fibre News
-"""
-from typing import List, Dict, Optional
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
 import re
-import logging
-from .base_scraper import BaseScraper
+import time
+from urllib.parse import urljoin
 
-logger = logging.getLogger(__name__)
+BASE_URL = "https://fibrnews.co.uk/"  # replace with actual site root if different
+START_PAGE = "https://fibrnews.co.uk/all-news/"  # listing page
 
+def scrape_page(url):
+    print(f"Scraping: {url}")
+    res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+    if res.status_code != 200:
+        print(f"Failed: {url}")
+        return []
+    soup = BeautifulSoup(res.text, "html.parser")
+    articles = soup.find_all("article")
+    data = []
 
-class FibreNewsScraper(BaseScraper):
-    """Scraper for fibrenews.co.uk"""
+    for art in articles:
+        title_tag = art.find("header")
+        title = title_tag.get_text(strip=True) if title_tag else ""
 
-    def __init__(self, base_url: str, user_agent: str, timeout: int = 30):
-        super().__init__("FibreNews", base_url, user_agent, timeout)
-        self.news_url = f"{base_url}/news"
+        summary_tag = art.find("div", class_="entry-summary")
+        summary = summary_tag.get_text(" ", strip=True) if summary_tag else ""
 
-    def scrape_article_list(self, max_pages: int = 10) -> List[Dict]:
-        """Scrape article list from news section"""
-        articles = []
+        link_tag = art.find("a", href=True)
+        url_full = urljoin(BASE_URL, link_tag["href"]) if link_tag else ""
 
-        for page in range(1, max_pages + 1):
-            url = f"{self.news_url}/page/{page}" if page > 1 else self.news_url
-            soup = self.fetch_page(url)
+        date_tag = art.find("time")
+        date = date_tag["datetime"] if date_tag and date_tag.has_attr("datetime") else ""
 
-            if not soup:
-                break
+        ai_mention = bool(re.search(r"\b(ai|artificial intelligence)\b", summary + " " + title, re.IGNORECASE))
 
-            # Find article elements
-            article_elements = soup.find_all(['article', 'div'], class_=re.compile(r'post|article|news-item|story'))
+        data.append({
+            "title": title,
+            "summary": summary,
+            "url": url_full,
+            "publication_date": date,
+            "ai_mention": ai_mention,
+            "source": url
+        })
 
-            if not article_elements:
-                # Fallback patterns
-                article_elements = soup.find_all('div', class_=re.compile(r'item|entry'))
+    return data
 
-            if not article_elements:
-                logger.warning(f"No articles found on page {page}")
-                break
+def get_all_pages(start_url, max_pages=10):
+    page_url = start_url
+    all_data = []
+    for i in range(max_pages):
+        page_data = scrape_page(page_url)
+        if not page_data:
+            break
+        all_data.extend(page_data)
 
-            for element in article_elements:
-                try:
-                    article_data = self._parse_article_element(element)
-                    if article_data:
-                        articles.append(article_data)
-                except Exception as e:
-                    logger.warning(f"Failed to parse article element: {e}")
+        soup = BeautifulSoup(requests.get(page_url).text, "html.parser")
+        next_link = soup.find("a", text=re.compile("Next", re.IGNORECASE))
+        if not next_link:
+            break
+        page_url = urljoin(BASE_URL, next_link["href"])
+        time.sleep(1)
+    return all_data
 
-            logger.info(f"Scraped page {page}: {len(article_elements)} articles")
+def main():
+    articles = get_all_pages(START_PAGE)
+    df = pd.DataFrame(articles)
+    df.to_csv("broadband_ai_mentions.csv", index=False)
+    df.to_json("broadband_ai_mentions.json", orient="records", indent=2)
+    print(f"✅ Scraped {len(df)} articles. Saved to broadband_ai_mentions.csv and .json")
 
-        return articles
-
-    def _parse_article_element(self, element) -> Optional[Dict]:
-        """Parse individual article element"""
-        # Find title
-        title_elem = element.find(['h2', 'h3', 'h1', 'a'], class_=re.compile(r'title|headline|entry-title'))
-        if not title_elem:
-            title_elem = element.find(['h2', 'h3', 'h1'])
-
-        if not title_elem:
-            return None
-
-        title = title_elem.get_text(strip=True)
-
-        # Find URL
-        link_elem = title_elem.find('a', href=True) if title_elem.name != 'a' else title_elem
-        if not link_elem:
-            link_elem = element.find('a', href=True)
-
-        if not link_elem:
-            return None
-
-        url = link_elem['href']
-        if not url.startswith('http'):
-            url = self.base_url + url
-
-        # Find date
-        date_elem = element.find(['time', 'span'], class_=re.compile(r'date|time|published|posted'))
-        date_str = None
-        if date_elem:
-            date_str = date_elem.get('datetime') or date_elem.get_text(strip=True)
-
-        # Find summary
-        summary_elem = element.find(['p', 'div'], class_=re.compile(r'excerpt|summary|description'))
-        if not summary_elem:
-            summary_elem = element.find('p')
-        summary = summary_elem.get_text(strip=True) if summary_elem else ""
-
-        return {
-            'source': self.source_name,
-            'title': title,
-            'url': url,
-            'date': date_str,
-            'summary': summary
-        }
-
-    def scrape_article_content(self, url: str) -> Optional[Dict]:
-        """Scrape full article content"""
-        soup = self.fetch_page(url)
-        if not soup:
-            return None
-
-        try:
-            # Find main content
-            content_elem = soup.find(['article', 'div'], class_=re.compile(r'entry-content|article-content|post-content|content'))
-
-            if not content_elem:
-                content_elem = soup.find('article')
-
-            if content_elem:
-                # Remove unwanted elements
-                for tag in content_elem.find_all(['script', 'style', 'nav', 'aside', 'footer', 'header']):
-                    tag.decompose()
-
-                full_content = content_elem.get_text(separator=' ', strip=True)
-            else:
-                full_content = ""
-
-            return {
-                'content': full_content
-            }
-        except Exception as e:
-            logger.error(f"Failed to scrape content from {url}: {e}")
-            return {'content': ""}
+if __name__ == "__main__":
+    main()
