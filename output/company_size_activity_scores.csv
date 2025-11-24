@@ -1,0 +1,21 @@
+company,revenue_gbp_billions,employees,size_score,ai_activity_score,quadrant
+BT,20.8,111000,100,4,Large + High Activity (Leaders)
+VMO2,10.7,18000,95,5,Large + High Activity (Leaders)
+Sky,10.3,25000,90,2,Large + Low Activity (Opportunity)
+Vodafone,5.8,9500,85,4,Large + High Activity (Leaders)
+Openreach,5.5,33000,80,2,Large + Low Activity (Opportunity)
+Utility Warehouse,2.0,68800,75,1,Large + Low Activity (Opportunity)
+TalkTalk,1.5,1700,70,2,Medium + Low Activity
+CityFibre,0.134,2000,60,3,Medium + High Activity (Ambitious)
+Zen,0.121,580,55,1,Medium + Low Activity
+Hyperoptic,0.114,1800,50,1,Medium + Low Activity
+YouFibre / Brsk,0.110,1000,45,2,Medium + Low Activity
+Netomnia,0.110,1000,45,1,Medium + Low Activity
+Community Fibre,0.076,700,35,2,Small + High Activity (Ambitious)
+Glide,0.055,350,30,0,Small + Low Activity (Laggards)
+Gigaclear,0.034,820,25,3,Small + High Activity (Ambitious)
+ITS,0.028,150,20,0,Small + Low Activity (Laggards)
+FullFibre,0.018,250,15,1,Small + Low Activity (Laggards)
+Cuckoo,0.015,100,10,0,Small + Low Activity (Laggards)
+nexfibre,0.000,50,5,0,Small + Low Activity (Laggards)
+APFN,0.000,50,5,0,Small + Low Activity (Laggards)

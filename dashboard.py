@@ -68,6 +68,16 @@ def load_company_matrix():
 
     return df
 
+@st.cache_data
+def load_company_size_data():
+    """Load company size and AI activity scores."""
+    csv_path = "output/company_size_activity_scores.csv"
+    if not os.path.exists(csv_path):
+        return None
+
+    df = pd.read_csv(csv_path)
+    return df
+
 def create_binary_matrix_chart(matrix_df):
     """Create binary matrix with checkmarks/crosses."""
     if matrix_df is None or len(matrix_df) == 0:
@@ -236,57 +246,19 @@ def create_company_bar_chart(df):
 
     return fig
 
-def create_company_size_activity_matrix(matrix_df):
+def create_company_size_activity_matrix(size_data_df):
     """2x2 matrix: Company Size vs AI Public Activity."""
-    if matrix_df is None or len(matrix_df) == 0:
+    if size_data_df is None or len(size_data_df) == 0:
         return None
 
-    # Company size ranking (based on company_ranked.md)
-    # Higher number = larger company
-    company_size = {
-        'BT': 100,
-        'VMO2': 95,
-        'Sky': 90,
-        'Vodafone': 85,
-        'Openreach': 80,
-        'Utility Warehouse': 75,
-        'TalkTalk': 70,
-        # Tier 2
-        'CityFibre': 60,
-        'Zen': 55,
-        'Hyperoptic': 50,
-        'YouFibre / Brsk': 45,
-        'Netomnia': 45,
-        # Tier 3
-        'Community Fibre': 35,
-        'Glide': 30,
-        'Gigaclear': 25,
-        'ITS': 20,
-        'FullFibre': 15,
-        'Cuckoo': 10,
-        # Tier 4
-        'nexfibre': 5,
-        'APFN': 5,
-    }
+    # Use the loaded CSV data directly
+    plot_df = size_data_df[['company', 'size_score', 'ai_activity_score', 'revenue_gbp_billions', 'employees']].copy()
+    plot_df.columns = ['Company', 'Size', 'AI Activity', 'Revenue', 'Employees']
 
-    # Calculate AI public activity (number of categories with AI)
-    ai_activity = matrix_df.sum(axis=1).to_dict()
-
-    # Create data for scatter plot
-    plot_data = []
-    for company in matrix_df.index:
-        if company in company_size:
-            plot_data.append({
-                'Company': company,
-                'Size': company_size[company],
-                'AI Activity': ai_activity[company],
-                'Size Label': 'Large' if company_size[company] >= 70 else 'Medium' if company_size[company] >= 30 else 'Small'
-            })
-
-    if not plot_data:
-        return None
-
-    plot_df = pd.DataFrame(plot_data)
+    # Add size label
+    plot_df['Size Label'] = plot_df['Size'].apply(
+        lambda x: 'Large' if x >= 70 else 'Medium' if x >= 30 else 'Small'
+    )
 
     # Calculate quadrants
     median_activity = plot_df['AI Activity'].median()
@@ -328,8 +300,8 @@ def create_company_size_activity_matrix(matrix_df):
         text=plot_df['Company'],
         textposition='top center',
         textfont=dict(size=10),
-        hovertemplate='<b>%{text}</b><br>AI Categories: %{x}<br>Size Tier: %{customdata}<extra></extra>',
-        customdata=plot_df['Size Label']
+        hovertemplate='<b>%{text}</b><br>AI Categories: %{x}<br>Revenue: £%{customdata[0]}B<br>Employees: %{customdata[1]:,}<extra></extra>',
+        customdata=plot_df[['Revenue', 'Employees']].values
     ))
 
     # Add quadrant lines
@@ -437,8 +409,9 @@ def main():
     st.subheader("📍 Company Positioning: Size vs AI Public Activity")
     st.markdown("*2x2 matrix showing company size (revenue/scale) against AI public activity (number of AI use case categories)*")
 
-    if matrix_df is not None:
-        positioning_matrix = create_company_size_activity_matrix(matrix_df)
+    size_data_df = load_company_size_data()
+    if size_data_df is not None:
+        positioning_matrix = create_company_size_activity_matrix(size_data_df)
         if positioning_matrix:
             st.plotly_chart(positioning_matrix, use_container_width=True)
 
@@ -576,6 +549,7 @@ def main():
     **Data Sources:**
     - `output/ai_articles_updated.csv`
     - `company_use_case_matrix_binary_sorted.csv`
+    - `output/company_size_activity_scores.csv`
 
     **Last Updated:** {}
     """.format(datetime.now().strftime('%Y-%m-%d %H:%M')))
