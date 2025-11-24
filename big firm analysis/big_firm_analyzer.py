@@ -8,7 +8,7 @@ import os
 import json
 import re
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import ollama
 from tqdm import tqdm
 import time
@@ -20,29 +20,28 @@ class BigFirmAnalyzer:
 
     # Use case categories
     USE_CASE_CATEGORIES = [
-        "network_optimization",
-        "customer_support",
-        "predictive_maintenance",
-        "marketing_automation",
-        "security",
-        "analytics",
-        "network_planning",
-        "qos_optimization",
-        "internal_operations",
-        "cybersecurity",
+        "network_planning_deployment",
+        "network_optimization_performance",
+        "predictive_maintenance_analytics",
+        "customer_support_experience",
+        "security_fraud_threat",
+        "internal_productivity_workforce",
         "other"
     ]
 
     def __init__(self,
-                 model_name="kimi-k2-thinking:cloud",
-                 fallback_model="qwen2.5:32b",
-                 cache_file="big_firm_cache.json"):
+                 model_name="gpt-oss:20b-cloud",
+                 fallback_model="gpt-oss:20b",
+                 cache_file="big_firm_scrape_cache.json",
+                 batch_size=5):
         """Initialize the analyzer."""
         self.model_name = model_name
         self.fallback_model = fallback_model
         self.cache_file = os.path.join(os.path.dirname(__file__), cache_file)
         self.cache = self._load_cache()
         self.active_model = None
+        self.batch_size = batch_size
+        self.rate_limited = False  # Track if we've hit rate limits
 
     def _load_cache(self) -> Dict:
         """Load cached analysis results."""
@@ -98,7 +97,7 @@ class BigFirmAnalyzer:
     def create_analysis_prompt(self, company: str, article_title: str, date: str,
                                 existing_use_case: str, notes: str) -> str:
         """Create prompt for LLM analysis."""
-        prompt = f"""You are analyzing AI adoption by major UK telecommunications companies.
+        prompt = f"""You are an expert analyst specializing in AI adoption by major UK telecommunications companies. Your task is to carefully analyze articles and accurately identify AI use cases.
 
 Article Information:
 - Company: {company}
@@ -107,59 +106,96 @@ Article Information:
 - Manually Tagged Use Case: {existing_use_case if pd.notna(existing_use_case) else 'Not specified'}
 - Additional Notes: {notes if pd.notna(notes) else 'None'}
 
+CRITICAL INSTRUCTIONS:
+- Read the article title, existing use case tag, and notes CAREFULLY
+- Focus on ACTUAL AI applications being implemented or deployed
+- Look for specific use cases, technologies, and implementations
+- The manually tagged use case provides important context - use it to inform your analysis
+- Pay attention to the CONTEXT of how AI is being used
+
 Based on this information, provide a detailed JSON analysis with:
 
-1. **standardized_use_case** (string): Map the use case to one of these categories:
-   - "network_optimization" - Traffic management, routing, capacity
-   - "customer_support" - Chatbots, virtual assistants, help desk
-   - "predictive_maintenance" - Fault prediction, anomaly detection
-   - "marketing_automation" - Personalization, targeting
-   - "security" - Threat detection, fraud prevention
-   - "analytics" - Data analysis, business intelligence
-   - "network_planning" - Infrastructure planning
-   - "qos_optimization" - Quality of Service
-   - "internal_operations" - Internal process automation
-   - "cybersecurity" - Cyber threat protection
-   - "other" - If doesn't fit above
+1. **standardized_use_case** (string): Map the use case to the MOST APPROPRIATE category. READ CAREFULLY and choose from:
+
+   - "network_planning_deployment" - AI for infrastructure strategy and rollout
+     SPECIFIC INDICATORS: "network design", "capacity planning", "site selection", "rollout", "deployment planning", "RF optimization", "coverage planning", "infrastructure planning", "capex", "network architecture"
+     Examples: AI determining where to build towers, planning fiber rollout routes, optimizing coverage areas
+
+   - "network_optimization_performance" - AI for real-time network efficiency and quality
+     SPECIFIC INDICATORS: "network optimization", "performance management", "traffic management", "load balancing", "QoS", "SLA", "bandwidth allocation", "latency reduction", "self-optimizing", "SON"
+     Examples: AI dynamically adjusting network traffic, optimizing bandwidth in real-time, improving connection quality
+
+   - "predictive_maintenance_analytics" - AI anticipating failures and preventing downtime
+     SPECIFIC INDICATORS: "predictive maintenance", "fault prediction", "anomaly detection", "preventive maintenance", "failure prediction", "equipment monitoring", "asset health", "root cause analysis", "network analytics", "diagnostics"
+     Examples: AI predicting when equipment will fail, detecting network anomalies before they cause outages
+
+   - "customer_support_experience" - AI improving customer service and interactions
+     SPECIFIC INDICATORS: "customer support", "customer service", "chatbot", "virtual assistant", "customer experience", "CX", "support automation", "ticket resolution", "call center", "self-service", "troubleshooting assistant"
+     Examples: AI chatbots handling customer queries, automated troubleshooting guides, virtual support agents
+
+   - "security_fraud_threat" - AI protecting networks, data, and revenue
+     SPECIFIC INDICATORS: "security", "cybersecurity", "fraud detection", "threat detection", "DDoS", "intrusion detection", "identity verification", "spam detection", "revenue assurance", "security monitoring"
+     Examples: AI detecting fraud patterns, identifying cyber threats, preventing unauthorized access
+
+   - "internal_productivity_workforce" - AI helping employees work more efficiently
+     SPECIFIC INDICATORS: "employee productivity", "workforce tools", "internal tools", "knowledge management", "process automation", "workflow automation", "training tools", "coding assistant", "document automation", "operations efficiency"
+     Examples: AI assistants for employees, automated internal processes, knowledge bases for staff
+
+   - "other" - AI mentioned but no clear use case, or general AI strategy/partnership discussions
 
 2. **confidence** (float 0.0-1.0): How confident are you in this categorization?
+   - 0.9-1.0: Very clear, explicit use case with specific details
+   - 0.7-0.9: Clear use case with good context
+   - 0.5-0.7: Moderate confidence, some ambiguity
+   - 0.0-0.5: Low confidence, vague or unclear
 
-3. **sentiment** (string): Based on the article title, is the company's AI adoption portrayed as:
-   - "positive" - Beneficial, innovative, successful
-   - "neutral" - Factual reporting
-   - "negative" - Concerns, problems, challenges
-   - "mixed" - Both positive and negative aspects
+3. **sentiment** (string): Based on the article title and context, is the company's AI adoption portrayed as:
+   - "positive" - Beneficial, innovative, successful, problem-solving
+   - "neutral" - Factual reporting without clear positive/negative framing
+   - "negative" - Concerns, problems, challenges, failures
+   - "mixed" - Both positive and negative aspects discussed
 
 4. **strategic_importance** (string): Rate the strategic importance of this AI initiative:
-   - "high" - Core business transformation
-   - "medium" - Significant operational improvement
-   - "low" - Incremental optimization
+   - "high" - Core business transformation, significant competitive advantage
+   - "medium" - Significant operational improvement, important but not transformative
+   - "low" - Incremental optimization, tactical improvement
+   - "unknown" - Cannot determine from available information
 
-5. **maturity_stage** (string): What stage is this AI initiative?
-   - "pilot" - Testing/experimental
-   - "deployment" - Active rollout
-   - "scaled" - Fully operational at scale
-   - "unknown" - Cannot determine
+5. **maturity_stage** (string): What stage is this AI initiative at?
+   - "pilot" - Testing/experimental/trial phase
+   - "deployment" - Active rollout/implementation in progress
+   - "scaled" - Fully operational at scale across the organization
+   - "unknown" - Cannot determine from available information
 
-6. **key_technologies** (array): List specific AI technologies mentioned or implied:
-   - Examples: "chatbot", "NLP", "machine learning", "neural network", "automation", "predictive analytics"
+6. **key_technologies** (array): List specific AI technologies mentioned or implied from the article title and tags:
+   - Examples: "chatbot", "NLP", "natural language processing", "machine learning", "neural network", "automation", "predictive analytics", "computer vision", "generative AI", "LLM"
 
-7. **business_impact** (string): One sentence describing the expected business impact.
+7. **business_impact** (string): One sentence describing the expected or actual business impact of this AI initiative.
 
-8. **summary** (string): 2-3 sentence summary of the AI initiative and its significance.
+8. **summary** (string): 2-3 sentence summary covering:
+   - WHAT AI technology/solution is being discussed
+   - HOW the company is using it (the specific use case)
+   - WHY it matters or what impact it has
 
-Return ONLY valid JSON, no explanations.
+ANALYSIS APPROACH:
+1. Read the article title, manually tagged use case, and notes carefully
+2. Identify the SPECIFIC AI application from the available information
+3. Match the application to the most appropriate use case based on INDICATORS above
+4. Assess the maturity, importance, and sentiment based on the context
+5. Be generous in identifying AI content - if there's any mention of AI/ML/automation, analyze it
+
+IMPORTANT: Return ONLY valid JSON. No explanations, no markdown code blocks, just the raw JSON object.
 
 Example:
 {{
-  "standardized_use_case": "customer_support",
+  "standardized_use_case": "customer_support_experience",
   "confidence": 0.9,
   "sentiment": "positive",
   "strategic_importance": "high",
   "maturity_stage": "deployment",
   "key_technologies": ["chatbot", "NLP", "automation"],
-  "business_impact": "Improved customer service response times and satisfaction scores.",
-  "summary": "BT is implementing AI-powered customer service tools to transform their support experience. This represents a significant investment in customer-facing AI technology."
+  "business_impact": "Improved customer service response times and satisfaction scores by 40%.",
+  "summary": "BT is deploying AI-powered customer service chatbots to transform their support experience. The virtual assistants use natural language processing to handle common queries automatically. This represents a significant investment in customer-facing AI technology."
 }}"""
 
         return prompt
@@ -215,6 +251,18 @@ Example:
                     continue
 
             except Exception as e:
+                error_msg = str(e).lower()
+
+                # Check for rate limit errors
+                if ('rate limit' in error_msg or 'too many requests' in error_msg or
+                    '429' in error_msg or 'quota' in error_msg) and not self.rate_limited:
+                    print(f"\n⚠️ RATE LIMIT DETECTED! Switching to local model: {self.fallback_model}")
+                    self.active_model = self.fallback_model
+                    self.rate_limited = True
+                    # Retry immediately with fallback model
+                    time.sleep(1)
+                    continue
+
                 print(f"Error (attempt {attempt + 1}): {e}")
                 if attempt < max_retries - 1:
                     time.sleep(retry_delay)
@@ -257,9 +305,29 @@ Example:
 
         return validated
 
+    def _extract_ai_keywords(self, text: str) -> Tuple[List[str], int]:
+        """Extract AI-related keywords from text."""
+        if pd.isna(text):
+            return [], 0
+
+        text_lower = str(text).lower()
+        ai_keywords = [
+            'ai', 'artificial intelligence', 'machine learning', 'ml',
+            'deep learning', 'neural network', 'chatbot', 'automation',
+            'predictive analytics', 'generative ai', 'llm', 'gpt',
+            'natural language processing', 'nlp', 'computer vision'
+        ]
+
+        found_keywords = []
+        for keyword in ai_keywords:
+            if keyword in text_lower:
+                found_keywords.append(keyword)
+
+        return list(set(found_keywords)), len(found_keywords)
+
     def analyze_all(self, input_file="AI Articles By Company.xlsx",
-                    output_file="big_firm_analysis_results.csv"):
-        """Run analysis on all articles."""
+                    output_file="big_firm_unified_analysis.csv"):
+        """Run analysis on all articles and output in unified format."""
 
         print("="*80)
         print("BIG FIRM AI ANALYSIS PIPELINE")
@@ -268,9 +336,9 @@ Example:
         # Check model
         self.active_model = self._check_model_availability()
 
-        # Load data
+        # Load data from the correct sheet
         input_path = os.path.join(os.path.dirname(__file__), input_file)
-        df = pd.read_excel(input_path)
+        df = pd.read_excel(input_path, sheet_name='AI Use Case Data')
 
         print(f"\nLoaded {len(df)} articles from {input_file}")
         print(f"Companies: {df['Company'].unique().tolist()}")
@@ -288,30 +356,43 @@ Example:
                 notes=row.get('Other Notes', '')
             )
 
+            # Extract AI keywords from title
+            title_ai_keywords, title_ai_count = self._extract_ai_keywords(row['Article'])
+
+            # Format result in unified CSV format
             result = {
-                'company': row['Company'],
-                'article_title': row['Article'],
+                'source': 'big_firm_manual',
                 'date': row['Date'],
-                'original_use_case': row.get('AI Use Case', ''),
-                'original_notes': row.get('Other Notes', ''),
-                'standardized_use_case': analysis['standardized_use_case'],
-                'confidence': analysis['confidence'],
+                'title': row['Article'],
+                'url': '',  # No URLs for manually curated articles
+                'primary_use_case': analysis['standardized_use_case'],
+                'primary_use_case_confidence': analysis['confidence'],
+                'ai_use_cases': analysis['standardized_use_case'],  # Single use case as comma-separated
                 'sentiment': analysis['sentiment'],
+                'ai_mention_count': title_ai_count,
+                'ai_mentions': ','.join(title_ai_keywords) if title_ai_keywords else '',
+                'title_ai_mention_count': title_ai_count,
+                'title_ai_mentions': ','.join(title_ai_keywords) if title_ai_keywords else '',
+                'word_count': 0,  # No article content available, only titles
+                'summary': analysis['summary'],
+                # Additional big firm columns
+                'company': row['Company'],
                 'strategic_importance': analysis['strategic_importance'],
                 'maturity_stage': analysis['maturity_stage'],
                 'key_technologies': ','.join(analysis['key_technologies']),
-                'business_impact': analysis['business_impact'],
-                'summary': analysis['summary']
+                'business_impact': analysis['business_impact']
             }
 
             results.append(result)
 
-            # Save cache periodically
-            if (idx + 1) % 5 == 0:
+            # Save cache periodically based on batch_size
+            if (idx + 1) % self.batch_size == 0:
                 self._save_cache()
+                print(f"\n💾 Cache saved at {idx + 1} articles")
 
         # Save final cache
         self._save_cache()
+        print(f"\n✓ Final cache saved")
 
         # Create results DataFrame
         results_df = pd.DataFrame(results)
@@ -320,15 +401,9 @@ Example:
         output_path = os.path.join(os.path.dirname(__file__), output_file)
         results_df.to_csv(output_path, index=False, encoding='utf-8')
 
-        # Also save to Excel with better formatting
-        excel_output = output_file.replace('.csv', '.xlsx')
-        excel_path = os.path.join(os.path.dirname(__file__), excel_output)
-        results_df.to_excel(excel_path, index=False, sheet_name='Analysis Results')
-
         print(f"\n{'='*80}")
         print(f"✓ Analysis complete!")
         print(f"✓ CSV saved to: {output_path}")
-        print(f"✓ Excel saved to: {excel_path}")
         print(f"✓ Total articles analyzed: {len(results_df)}")
         print(f"{'='*80}")
 
@@ -337,12 +412,15 @@ Example:
         print("-"*50)
         print(f"\nBy Company:")
         print(results_df['company'].value_counts().to_string())
-        print(f"\nBy Standardized Use Case:")
-        print(results_df['standardized_use_case'].value_counts().to_string())
+        print(f"\nBy Primary Use Case:")
+        print(results_df['primary_use_case'].value_counts().to_string())
         print(f"\nBy Strategic Importance:")
         print(results_df['strategic_importance'].value_counts().to_string())
         print(f"\nBy Sentiment:")
         print(results_df['sentiment'].value_counts().to_string())
+
+        if self.rate_limited:
+            print(f"\n⚠️ Note: Rate limit was hit. Switched to local model: {self.fallback_model}")
 
         return output_path
 
@@ -350,8 +428,9 @@ Example:
 def main():
     """Main execution function."""
     analyzer = BigFirmAnalyzer(
-        model_name="kimi-k2-thinking:cloud",
-        fallback_model="qwen2.5:32b"
+        model_name="gpt-oss:20b-cloud",
+        fallback_model="gpt-oss:20b",
+        batch_size=5
     )
 
     analyzer.analyze_all()

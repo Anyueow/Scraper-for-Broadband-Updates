@@ -17,22 +17,21 @@ class BroadbandAIAnalyzer:
 
     # Use case categories as defined in project requirements
     USE_CASE_CATEGORIES = [
-        "network_optimization",
-        "customer_support",
-        "predictive_maintenance",
-        "marketing_automation",
-        "security",
-        "analytics",
-        "network_planning",
-        "qos_optimization",
+        "network_planning_deployment",
+        "network_optimization_performance",
+        "predictive_maintenance_analytics",
+        "customer_support_experience",
+        "security_fraud_threat",
+        "internal_productivity_workforce",
         "other"
     ]
 
     def __init__(self,
                  scraped_output_dir="../Scraped Output",
-                 model_name="kimi-k2-thinking:cloud",
-                 fallback_model="qwen2.5:32b",
-                 cache_file="analysis_cache.json"):
+                 model_name="gpt-oss:20b-cloud",
+                 fallback_model="gpt-oss:20b",
+                 cache_file="analysis_cache.json",
+                 batch_size=5):
         """
         Initialize the analyzer.
 
@@ -41,6 +40,7 @@ class BroadbandAIAnalyzer:
             model_name: Primary Ollama model to use
             fallback_model: Fallback model if primary is unavailable
             cache_file: JSON file to cache analysis results
+            batch_size: Number of articles to process before saving cache
         """
         self.scraped_output_dir = scraped_output_dir
         self.model_name = model_name
@@ -48,6 +48,8 @@ class BroadbandAIAnalyzer:
         self.cache_file = os.path.join(os.path.dirname(__file__), cache_file)
         self.cache = self._load_cache()
         self.active_model = None
+        self.batch_size = batch_size
+        self.rate_limited = False  # Track if we've hit rate limits
 
     def _load_cache(self) -> Dict:
         """Load cached analysis results."""
@@ -304,59 +306,102 @@ class BroadbandAIAnalyzer:
         Returns:
             Formatted prompt string
         """
-        prompt = f"""You are analyzing UK broadband and telecommunications industry news articles to identify AI and machine learning trends.
+        prompt = f"""You are an expert analyst specializing in AI adoption in the UK broadband and telecommunications industry. Your task is to carefully analyze articles and accurately identify AI use cases.
 
 Article Details:
 - Title: {title}
 - Source: {source}
 - Date: {date}
-- Content: {content[:3000]}{'...' if len(content) > 3000 else ''}
+- Content: {content[:4000]}{'...' if len(content) > 4000 else ''}
 
-Your task is to analyze this article and provide a JSON response with the following information:
+CRITICAL INSTRUCTIONS:
+- Read the ENTIRE article carefully, not just the title
+- Focus on ACTUAL AI applications being implemented or deployed, not just general mentions
+- Look for specific use cases, technologies, and implementations
+- If AI is mentioned but no specific use case is clear, use "other"
+- Pay attention to the CONTEXT of how AI is being used
 
-1. **has_ai_content** (boolean): Does this article mention AI, machine learning, automation, neural networks, or related technologies?
+Provide a JSON response with the following information:
 
-2. **ai_mentions** (array of strings): List ALL AI-related terms and phrases mentioned in the article. Examples: "AI", "artificial intelligence", "machine learning", "neural network", "deep learning", "LLM", "large language model", "automation", "chatbot", "predictive analytics", etc.
+1. **has_ai_content** (boolean): Does this article discuss actual AI/ML implementation, deployment, or specific use cases? (Not just generic mentions)
 
-3. **ai_mention_count** (integer): Total number of times AI-related concepts are mentioned in the article.
+2. **ai_mentions** (array of strings): List ALL AI-related terms found in the article:
+   - Keywords: "AI", "artificial intelligence", "machine learning", "ML", "deep learning", "neural network"
+   - Technologies: "LLM", "large language model", "GPT", "ChatGPT", "Claude", "generative AI"
+   - Applications: "chatbot", "virtual assistant", "automation", "predictive analytics", "computer vision"
+   - Techniques: "natural language processing", "NLP", "sentiment analysis", "anomaly detection"
 
-4. **primary_use_case** (string): The PRIMARY AI use case category this article discusses. Choose from:
-   - "network_optimization" - Traffic management, routing, capacity planning
-   - "customer_support" - Chatbots, virtual assistants, help desk automation
-   - "predictive_maintenance" - Fault prediction, anomaly detection, proactive repairs
-   - "marketing_automation" - Personalization, targeting, campaign optimization
-   - "security" - Threat detection, fraud prevention, intrusion detection
-   - "analytics" - Data analysis, business intelligence, forecasting
-   - "network_planning" - Infrastructure planning, deployment optimization
-   - "qos_optimization" - Quality of Service management, bandwidth allocation
-   - "other" - AI is mentioned but doesn't fit above categories
-   - null - Article doesn't discuss AI
+3. **ai_mention_count** (integer): Total number of times AI-related concepts are mentioned (count each occurrence).
 
-5. **primary_use_case_confidence** (float 0.0-1.0): How confident are you in the primary use case classification? 1.0 = very confident, 0.0 = not confident.
+4. **primary_use_case** (string): The PRIMARY AI use case this article discusses. READ CAREFULLY and choose the MOST APPROPRIATE category:
 
-6. **ai_use_cases** (array of strings): ALL AI use case categories mentioned in the article (can include multiple). Use same categories as above.
+   - "network_planning_deployment" - AI for infrastructure strategy and rollout
+     SPECIFIC INDICATORS: "network design", "capacity planning", "site selection", "rollout", "deployment planning", "RF optimization", "coverage planning", "infrastructure planning", "capex", "network architecture"
+     Examples: AI determining where to build towers, planning fiber rollout routes, optimizing coverage areas
 
-7. **sentiment** (string): Overall sentiment toward AI in this article. Choose from:
-   - "positive" - AI is presented as beneficial, innovative, or solving problems
-   - "neutral" - AI is discussed factually without strong opinion
-   - "negative" - AI is presented with concerns, criticism, or problems
-   - "mixed" - Both positive and negative aspects discussed
-   - "not_applicable" - Article doesn't discuss AI
+   - "network_optimization_performance" - AI for real-time network efficiency and quality
+     SPECIFIC INDICATORS: "network optimization", "performance management", "traffic management", "load balancing", "QoS", "SLA", "bandwidth allocation", "latency reduction", "self-optimizing", "SON"
+     Examples: AI dynamically adjusting network traffic, optimizing bandwidth in real-time, improving connection quality
 
-8. **summary** (string): A concise 2-3 sentence summary of the article. If the article discusses AI, focus on the AI-related aspects. If it doesn't mention AI, provide a general summary.
+   - "predictive_maintenance_analytics" - AI anticipating failures and preventing downtime
+     SPECIFIC INDICATORS: "predictive maintenance", "fault prediction", "anomaly detection", "preventive maintenance", "failure prediction", "equipment monitoring", "asset health", "root cause analysis", "network analytics", "diagnostics"
+     Examples: AI predicting when equipment will fail, detecting network anomalies before they cause outages
 
-IMPORTANT: Return ONLY valid JSON. No explanations, no markdown, just the JSON object.
+   - "customer_support_experience" - AI improving customer service and interactions
+     SPECIFIC INDICATORS: "customer support", "customer service", "chatbot", "virtual assistant", "customer experience", "CX", "support automation", "ticket resolution", "call center", "self-service", "troubleshooting assistant"
+     Examples: AI chatbots handling customer queries, automated troubleshooting guides, virtual support agents
+
+   - "security_fraud_threat" - AI protecting networks, data, and revenue
+     SPECIFIC INDICATORS: "security", "cybersecurity", "fraud detection", "threat detection", "DDoS", "intrusion detection", "identity verification", "spam detection", "revenue assurance", "security monitoring"
+     Examples: AI detecting fraud patterns, identifying cyber threats, preventing unauthorized access
+
+   - "internal_productivity_workforce" - AI helping employees work more efficiently
+     SPECIFIC INDICATORS: "employee productivity", "workforce tools", "internal tools", "knowledge management", "process automation", "workflow automation", "training tools", "coding assistant", "document automation", "operations efficiency"
+     Examples: AI assistants for employees, automated internal processes, knowledge bases for staff
+
+   - "other" - AI mentioned but no clear use case, or general AI strategy/partnership discussions
+   - null - Article doesn't discuss AI at all
+
+5. **primary_use_case_confidence** (float 0.0-1.0): How confident are you in the primary use case classification?
+   - 0.9-1.0: Very clear, explicit use case described with specific details
+   - 0.7-0.9: Clear use case with good context
+   - 0.5-0.7: Moderate confidence, some ambiguity
+   - 0.0-0.5: Low confidence, vague or unclear
+
+6. **ai_use_cases** (array of strings): ALL AI use case categories mentioned in the article (can include multiple from the list above). Look for secondary use cases beyond the primary one.
+
+7. **sentiment** (string): Overall sentiment toward AI in this article:
+   - "positive" - AI presented as beneficial, innovative, successful, solving problems
+   - "neutral" - Factual reporting without clear positive/negative framing
+   - "negative" - Concerns, criticism, failures, problems with AI
+   - "mixed" - Both positive and negative aspects discussed equally
+   - "not_applicable" - Article doesn't discuss AI meaningfully
+
+8. **summary** (string): A concise 2-3 sentence summary focusing on:
+   - WHAT AI technology/solution is being discussed
+   - HOW it's being used (the specific use case)
+   - WHY it matters or what impact it has
+   If no AI content, return "N/A".
+
+ANALYSIS APPROACH:
+1. First, scan for AI-related keywords and determine if there's meaningful AI content
+2. Read the full article to understand the CONTEXT and specific application
+3. Match the application to the most appropriate use case based on INDICATORS above
+4. Look for multiple use cases if the article discusses various applications
+5. Assess sentiment based on how AI is framed in the article
+
+IMPORTANT: Return ONLY valid JSON. No explanations, no markdown code blocks, just the raw JSON object.
 
 Example response format:
 {{
   "has_ai_content": true,
-  "ai_mentions": ["AI", "machine learning", "chatbot"],
-  "ai_mention_count": 5,
-  "primary_use_case": "customer_support",
-  "primary_use_case_confidence": 0.9,
-  "ai_use_cases": ["customer_support", "analytics"],
+  "ai_mentions": ["AI", "machine learning", "chatbot", "virtual assistant", "automation"],
+  "ai_mention_count": 12,
+  "primary_use_case": "customer_support_experience",
+  "primary_use_case_confidence": 0.95,
+  "ai_use_cases": ["customer_support_experience"],
   "sentiment": "positive",
-  "summary": "The article discusses how a broadband provider is implementing AI-powered chatbots to improve customer support response times and satisfaction."
+  "summary": "BT is deploying AI-powered chatbots to handle customer support queries, aiming to reduce wait times by 40% and improve customer satisfaction. The virtual assistants use natural language processing to understand and resolve common technical issues automatically."
 }}"""
 
         return prompt
@@ -390,7 +435,7 @@ Example response format:
                 'primary_use_case_confidence': 0.0,
                 'ai_use_cases': [],
                 'sentiment': 'not_applicable',
-                'summary': 'Content unavailable - blocked by anti-bot protection'
+                'summary': 'N/A'
             }
             self.cache[cache_key] = result
             return result
@@ -406,7 +451,7 @@ Example response format:
                 'primary_use_case_confidence': 0.0,
                 'ai_use_cases': [],
                 'sentiment': 'not_applicable',
-                'summary': f'Article about {source} broadband/telecom news without AI mentions'
+                'summary': 'N/A'
             }
             self.cache[cache_key] = result
             return result
@@ -461,6 +506,18 @@ Example response format:
                     continue
 
             except Exception as e:
+                error_msg = str(e).lower()
+
+                # Check for rate limit errors
+                if ('rate limit' in error_msg or 'too many requests' in error_msg or
+                    '429' in error_msg or 'quota' in error_msg) and not self.rate_limited:
+                    print(f"\n⚠️ RATE LIMIT DETECTED! Switching to local model: {self.fallback_model}")
+                    self.active_model = self.fallback_model
+                    self.rate_limited = True
+                    # Retry immediately with fallback model
+                    time.sleep(1)
+                    continue
+
                 print(f"Error analyzing article (attempt {attempt + 1}/{max_retries}): {e}")
                 if attempt < max_retries - 1:
                     time.sleep(retry_delay)
@@ -476,7 +533,7 @@ Example response format:
             'primary_use_case_confidence': 0.0,
             'ai_use_cases': [],
             'sentiment': 'not_applicable',
-            'summary': 'Analysis failed - could not process article'
+            'summary': 'N/A'
         }
 
     def _validate_analysis_result(self, result: Dict) -> Dict:
@@ -628,9 +685,10 @@ Example response format:
 
                 results.append(result)
 
-                # Save cache periodically (every 10 articles)
-                if (idx + 1) % 10 == 0:
+                # Save cache periodically based on batch_size
+                if (idx + 1) % self.batch_size == 0:
                     self._save_cache()
+                    print(f"\n💾 Cache saved at {idx + 1} articles")
 
             except Exception as e:
                 print(f"\nError processing article {idx}: {e}")
@@ -645,11 +703,12 @@ Example response format:
                     'ai_mentions': '',
                     'title_ai_mentions': '',
                     'title_ai_mention_count': 0,
-                    'summary': 'Analysis error'
+                    'summary': 'N/A'
                 })
 
         # Save final cache
         self._save_cache()
+        print(f"\n✓ Final cache saved")
 
         return pd.DataFrame(results)
 
@@ -710,10 +769,11 @@ Example response format:
 def main():
     """Main execution function."""
     # Initialize analyzer
-    # Using kimi-k2-thinking:cloud (Ollama Cloud model with advanced reasoning)
+    # Using gpt-oss:20b-cloud (Cloud model) with automatic fallback to gpt-oss:20b (Local) on rate limits
     analyzer = BroadbandAIAnalyzer(
-        model_name="kimi-k2-thinking:cloud",
-        fallback_model="qwen2.5:32b"
+        model_name="gpt-oss:20b-cloud",
+        fallback_model="gpt-oss:20b",
+        batch_size=5  # Save cache every 5 articles
     )
 
     # Run the pipeline
@@ -723,6 +783,9 @@ def main():
     print("\nNext steps:")
     print("1. Review the unified CSV for accuracy")
     print("2. Use the data for trend analysis, visualization, or reporting")
+
+    if analyzer.rate_limited:
+        print(f"\n⚠️ Note: Rate limit was hit. Switched to local model: {analyzer.fallback_model}")
 
 
 if __name__ == "__main__":
