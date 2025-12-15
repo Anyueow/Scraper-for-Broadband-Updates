@@ -3,8 +3,9 @@ BT,26.3,111000,100,4,Large + High Activity (Leaders)
 VMO2,10.7,18000,95,5,Large + High Activity (Leaders)
 Sky,10.3,25000,90,2,Large + Low Activity (Opportunity)
 Vodafone,5.8,9500,85,4,Large + High Activity (Leaders)
+Openreach,5.5,33000,80,2,Large + Low Activity (Opportunity)
+Utility Warehouse,0.150,800,40,1,Large + Low Activity (Opportunity)
 TalkTalk,1.5,1700,70,2,Medium + Low Activity
-Utility Warehouse,0.150,800,65,1,Medium + Low Activity
 CityFibre,0.134,2000,60,3,Medium + High Activity (Ambitious)
 Zen,0.121,580,55,1,Medium + Low Activity
 Hyperoptic,0.114,1800,50,1,Medium + Low Activity
