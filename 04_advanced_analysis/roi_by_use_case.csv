@@ -1,0 +1,3 @@
+use_case,roi_category,total_roi_claims,avg_credibility,claims_with_percentage,claims_with_amount,avg_percentage,median_percentage,cost_reduction_claims,revenue_growth_claims,time_savings_claims,unique_companies
+customer_support_experience,Customer Support & Experience,1,85.0,0,0,,,0,0,0,1
+other,Other/General,1,75.0,0,0,,,0,0,1,1

@@ -1,0 +1,293 @@
+{
+  "_comment": "Company Taxonomy for UK Telecommunications AI Analysis",
+  "_version": "1.0",
+  "_last_updated": "2025-12-14",
+  "_purpose": "Standardize company name extraction and normalization across all articles",
+
+  "uk_retail_isps": {
+    "BT": {
+      "aliases": ["British Telecom", "BT Group", "BT plc", "bt.com"],
+      "category": "large_incumbent",
+      "business_model": "retail_isp",
+      "headquarters": "London, UK",
+      "owned_brands": ["EE", "Plusnet"]
+    },
+    "Openreach": {
+      "aliases": ["Openreach Ltd"],
+      "category": "large_incumbent",
+      "business_model": "wholesale_fiber",
+      "headquarters": "London, UK",
+      "parent_company": "BT",
+      "note": "Legally separate from BT but wholly owned"
+    },
+    "Virgin Media O2": {
+      "aliases": ["VMO2", "Virgin Media", "Virgin Media O2 Ltd", "virginmedia.com"],
+      "category": "large_incumbent",
+      "business_model": "retail_isp",
+      "headquarters": "Reading, UK",
+      "owned_brands": ["Virgin Mobile", "O2"]
+    },
+    "Vodafone": {
+      "aliases": ["Vodafone UK", "Vodafone Group", "vodafone.co.uk"],
+      "category": "large_incumbent",
+      "business_model": "mobile_operator",
+      "headquarters": "Newbury, UK"
+    },
+    "Sky": {
+      "aliases": ["Sky Broadband", "Sky UK", "sky.com"],
+      "category": "large_incumbent",
+      "business_model": "retail_isp",
+      "headquarters": "Isleworth, UK",
+      "parent_company": "Comcast"
+    },
+    "TalkTalk": {
+      "aliases": ["TalkTalk Telecom", "talktalk.co.uk"],
+      "category": "mid_market",
+      "business_model": "retail_isp",
+      "headquarters": "Salford, UK"
+    },
+    "Plusnet": {
+      "aliases": ["plusnet.com"],
+      "category": "mid_market",
+      "business_model": "retail_isp",
+      "headquarters": "Sheffield, UK",
+      "parent_company": "BT"
+    },
+    "EE": {
+      "aliases": ["Everything Everywhere", "ee.co.uk"],
+      "category": "large_incumbent",
+      "business_model": "mobile_operator",
+      "headquarters": "Hatfield, UK",
+      "parent_company": "BT"
+    },
+    "Three": {
+      "aliases": ["Three UK", "3 UK", "three.co.uk"],
+      "category": "large_incumbent",
+      "business_model": "mobile_operator",
+      "headquarters": "Reading, UK"
+    }
+  },
+
+  "uk_wholesale_altnet": {
+    "CityFibre": {
+      "aliases": ["CityFibre Infrastructure", "cityfibre.com"],
+      "category": "mid_market",
+      "business_model": "wholesale_fiber",
+      "headquarters": "London, UK"
+    },
+    "Neos Networks": {
+      "aliases": ["Neos", "neosnetworks.com"],
+      "category": "mid_market",
+      "business_model": "wholesale_fiber",
+      "headquarters": "Reading, UK"
+    },
+    "Netomnia": {
+      "aliases": ["netomnia.com"],
+      "category": "scale_up",
+      "business_model": "wholesale_fiber",
+      "headquarters": "Solihull, UK"
+    },
+    "Community Fibre": {
+      "aliases": ["Community Fibre Ltd", "communityfibre.co.uk"],
+      "category": "scale_up",
+      "business_model": "retail_isp",
+      "headquarters": "London, UK"
+    },
+    "Gigaclear": {
+      "aliases": ["Gigaclear Ltd", "gigaclear.com"],
+      "category": "mid_market",
+      "business_model": "retail_isp",
+      "headquarters": "Abingdon, UK"
+    },
+    "Hyperoptic": {
+      "aliases": ["Hyperoptic Ltd", "hyperoptic.com"],
+      "category": "mid_market",
+      "business_model": "retail_isp",
+      "headquarters": "London, UK"
+    },
+    "YouFibre": {
+      "aliases": ["youfibre.com"],
+      "category": "scale_up",
+      "business_model": "retail_isp",
+      "headquarters": "Basingstoke, UK",
+      "associated_companies": ["Netomnia", "Brsk"]
+    },
+    "Brsk": {
+      "aliases": ["brsk.co.uk"],
+      "category": "scale_up",
+      "business_model": "retail_isp",
+      "headquarters": "Leeds, UK",
+      "associated_companies": ["Netomnia", "YouFibre"]
+    },
+    "nexfibre": {
+      "aliases": ["nexfibre Ltd"],
+      "category": "mid_market",
+      "business_model": "wholesale_fiber",
+      "headquarters": "London, UK",
+      "joint_venture": ["Virgin Media O2", "InfraVia Capital Partners"]
+    },
+    "County Broadband": {
+      "aliases": ["countybroadband.co.uk"],
+      "category": "mid_market",
+      "business_model": "retail_isp",
+      "headquarters": "Cambridgeshire, UK"
+    },
+    "G.Network": {
+      "aliases": ["G.Network Communications", "g.network"],
+      "category": "scale_up",
+      "business_model": "wholesale_fiber",
+      "headquarters": "London, UK"
+    }
+  },
+
+  "uk_b2b_infrastructure": {
+    "Colt Technology Services": {
+      "aliases": ["Colt", "Colt Telecom", "colt.net"],
+      "category": "large_incumbent",
+      "business_model": "b2b_infrastructure",
+      "headquarters": "London, UK"
+    },
+    "Cornerstone": {
+      "aliases": ["Cornerstone Telecommunications Infrastructure", "cornerstone.network"],
+      "category": "large_incumbent",
+      "business_model": "mobile_infrastructure",
+      "headquarters": "Reading, UK",
+      "joint_venture": ["Vodafone", "Virgin Media O2"]
+    },
+    "Wireless Infrastructure Group": {
+      "aliases": ["WIG", "Wireless Infra Group", "wirelessinfrastructure.com"],
+      "category": "mid_market",
+      "business_model": "mobile_infrastructure",
+      "headquarters": "London, UK"
+    },
+    "Boldyn Networks": {
+      "aliases": ["Boldyn", "formerly BAI Communications"],
+      "category": "mid_market",
+      "business_model": "b2b_infrastructure",
+      "headquarters": "London, UK"
+    },
+    "Freshwave": {
+      "aliases": ["Freshwave Group", "freshwavegroup.com"],
+      "category": "scale_up",
+      "business_model": "mobile_infrastructure",
+      "headquarters": "London, UK"
+    }
+  },
+
+  "european_infrastructure": {
+    "euNetworks": {
+      "aliases": ["euNetworks Group", "eunetworks.com"],
+      "category": "mid_market",
+      "business_model": "b2b_infrastructure",
+      "headquarters": "London, UK",
+      "geographic_scope": "Europe"
+    },
+    "TelCables Europe": {
+      "aliases": ["TelCables"],
+      "category": "mid_market",
+      "business_model": "b2b_infrastructure",
+      "geographic_scope": "Europe"
+    }
+  },
+
+  "north_american_infrastructure": {
+    "Zayo": {
+      "aliases": ["Zayo Group", "zayo.com"],
+      "category": "large_incumbent",
+      "business_model": "b2b_infrastructure",
+      "headquarters": "Boulder, Colorado, USA",
+      "geographic_scope": "North America, Europe"
+    }
+  },
+
+  "technology_vendors": {
+    "Microsoft": {
+      "aliases": ["Microsoft Azure", "Azure OpenAI", "microsoft.com"],
+      "vendor_type": "cloud_platform"
+    },
+    "ServiceNow": {
+      "aliases": ["servicenow.com"],
+      "vendor_type": "ai_platform"
+    },
+    "NICE": {
+      "aliases": ["NICE Ltd", "nice.com"],
+      "vendor_type": "ai_platform"
+    },
+    "LangChain": {
+      "aliases": ["langchain.com"],
+      "vendor_type": "ai_framework"
+    },
+    "Lenses.io": {
+      "aliases": ["Lenses", "lenses.io"],
+      "vendor_type": "data_platform"
+    },
+    "IQGeo": {
+      "aliases": ["iqgeo.com"],
+      "vendor_type": "ai_platform"
+    },
+    "Vyntelligence": {
+      "aliases": ["vyntelligence.com"],
+      "vendor_type": "ai_platform"
+    },
+    "Nokia": {
+      "aliases": ["Nokia Networks", "nokia.com"],
+      "vendor_type": "network_equipment"
+    },
+    "Equinix": {
+      "aliases": ["equinix.com"],
+      "vendor_type": "data_center"
+    },
+    "Domo": {
+      "aliases": ["domo.com"],
+      "vendor_type": "data_platform"
+    },
+    "Ollama": {
+      "aliases": ["ollama.ai", "ollama.com"],
+      "vendor_type": "ai_framework"
+    }
+  },
+
+  "company_pairing_rules": {
+    "_comment": "Define which companies should be merged/combined in analysis",
+    "pairs": [
+      {
+        "primary": "BT",
+        "merge_with": ["Openreach"],
+        "reason": "Wholly owned subsidiary, network operations closely tied",
+        "separate_when": "Analyzing regulatory separation or wholesale vs retail"
+      },
+      {
+        "primary": "Virgin Media O2",
+        "merge_with": ["nexfibre"],
+        "reason": "Joint venture majority owned by VMO2",
+        "separate_when": "Analyzing infrastructure investment separately"
+      },
+      {
+        "primary": "Netomnia",
+        "merge_with": ["Brsk", "YouFibre"],
+        "reason": "Common ownership and shared infrastructure",
+        "separate_when": "Analyzing retail vs wholesale separately"
+      }
+    ]
+  },
+
+  "extraction_hints": {
+    "_comment": "Patterns to help LLM identify companies in text",
+    "common_patterns": [
+      "Company Name + ('s|is|has|will|announced|deployed|launched)",
+      "At Company Name,",
+      "Company Name CTO|CEO|executive",
+      "according to Company Name",
+      "Company Name and Partner announced"
+    ],
+    "exclusion_patterns": [
+      "UK Government",
+      "Ofcom",
+      "Parliament",
+      "Department for",
+      "OpenAI",
+      "Anthropic",
+      "Google (when referring to AI models, not Google Cloud)"
+    ]
+  }
+}

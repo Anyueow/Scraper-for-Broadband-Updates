@@ -1,0 +1,96 @@
+{
+  "_comment": "Company Pairing Rules for Telco AI Analysis",
+  "_version": "1.0",
+  "_last_updated": "2025-12-14",
+  "_purpose": "Define which companies should be merged/combined in aggregated analysis",
+
+  "pairing_rules": [
+    {
+      "pair_id": "bt_openreach",
+      "primary_name": "BT",
+      "merge_with": ["Openreach"],
+      "combined_name": "BT / Openreach",
+      "reason": "Openreach is wholly owned BT subsidiary; network operations closely tied",
+      "applies_to_analysis": ["company_rankings", "ai_maturity_scores", "aggregate_statistics"],
+      "keep_separate_for": ["regulatory_analysis", "wholesale_vs_retail_comparison"],
+      "active": true
+    },
+    {
+      "pair_id": "vmo2_nexfibre",
+      "primary_name": "Virgin Media O2",
+      "merge_with": ["nexfibre"],
+      "combined_name": "VMO2 / nexfibre",
+      "reason": "nexfibre is joint venture majority owned by Virgin Media O2",
+      "applies_to_analysis": ["company_rankings", "infrastructure_investment"],
+      "keep_separate_for": ["retail_vs_wholesale_analysis"],
+      "active": true
+    },
+    {
+      "pair_id": "netomnia_group",
+      "primary_name": "Netomnia",
+      "merge_with": ["Brsk", "YouFibre"],
+      "combined_name": "Netomnia / Brsk / YouFibre",
+      "reason": "Common ownership (Netomnia wholesale, Brsk/YouFibre retail brands)",
+      "applies_to_analysis": ["company_rankings", "market_share"],
+      "keep_separate_for": ["retail_vs_wholesale_comparison", "brand_analysis"],
+      "active": true
+    },
+    {
+      "pair_id": "bt_ee_plusnet",
+      "primary_name": "BT",
+      "merge_with": ["EE", "Plusnet"],
+      "combined_name": "BT Group (incl. EE, Plusnet)",
+      "reason": "EE and Plusnet are wholly owned BT brands",
+      "applies_to_analysis": ["group_level_analysis", "market_consolidation"],
+      "keep_separate_for": ["brand_comparison", "mobile_vs_broadband"],
+      "active": false,
+      "note": "Disabled by default; enable for group-level analysis only"
+    },
+    {
+      "pair_id": "cornerstone_jv",
+      "primary_name": "Cornerstone",
+      "merge_with": [],
+      "combined_name": "Cornerstone (Vodafone/VMO2 JV)",
+      "reason": "Cornerstone is a Vodafone/VMO2 joint venture but operates independently",
+      "applies_to_analysis": [],
+      "keep_separate_for": ["all_analysis"],
+      "active": false,
+      "note": "Keep separate; JV status noted in metadata only"
+    }
+  ],
+
+  "normalization_rules": {
+    "_comment": "Standard name variations to normalize to canonical form",
+    "BT": ["British Telecom", "BT Group", "BT plc", "bt.com"],
+    "Openreach": ["Openreach Ltd"],
+    "Virgin Media O2": ["VMO2", "Virgin Media", "Virgin Media O2 Ltd", "virginmedia.com"],
+    "nexfibre": ["nexfibre Ltd"],
+    "Vodafone": ["Vodafone UK", "Vodafone Group", "vodafone.co.uk"],
+    "Sky": ["Sky Broadband", "Sky UK", "sky.com"],
+    "TalkTalk": ["TalkTalk Telecom", "talktalk.co.uk"],
+    "EE": ["Everything Everywhere", "ee.co.uk"],
+    "Three": ["Three UK", "3 UK", "three.co.uk"],
+    "Plusnet": ["plusnet.com"],
+    "CityFibre": ["CityFibre Infrastructure", "cityfibre.com"],
+    "Neos Networks": ["Neos", "neosnetworks.com"],
+    "Netomnia": ["netomnia.com"],
+    "Brsk": ["brsk.co.uk"],
+    "YouFibre": ["youfibre.com"],
+    "Community Fibre": ["Community Fibre Ltd", "communityfibre.co.uk"],
+    "Gigaclear": ["Gigaclear Ltd", "gigaclear.com"],
+    "Hyperoptic": ["Hyperoptic Ltd", "hyperoptic.com"],
+    "Colt Technology Services": ["Colt", "Colt Telecom", "colt.net"],
+    "Cornerstone": ["Cornerstone Telecommunications Infrastructure", "cornerstone.network"],
+    "Wireless Infrastructure Group": ["WIG", "Wireless Infra Group", "wirelessinfrastructure.com"],
+    "Boldyn Networks": ["Boldyn", "formerly BAI Communications"],
+    "Freshwave": ["Freshwave Group", "freshwavegroup.com"],
+    "euNetworks": ["euNetworks Group", "eunetworks.com"],
+    "Zayo": ["Zayo Group", "zayo.com"]
+  },
+
+  "usage_instructions": {
+    "apply_pairing": "Use pairing rules when generating company rankings, aggregate statistics, or market share analysis",
+    "skip_pairing": "Do NOT apply pairing when analyzing individual company AI strategies, comparing subsidiaries, or regulatory topics",
+    "implementation": "See 02_analysis/utilities/company_normalizer.py for automated application of these rules"
+  }
+}
