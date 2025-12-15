@@ -126,41 +126,6 @@ def create_binary_matrix_chart(matrix_df):
 
     return fig
 
-def create_ai_adoption_timeseries(df):
-    """Time series showing AI article count over time."""
-    if df is None or len(df) == 0:
-        return None
-
-    # Group by month
-    monthly = df.groupby('year_month').size().reset_index(name='AI Articles')
-
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(
-        x=monthly['year_month'],
-        y=monthly['AI Articles'],
-        mode='lines+markers',
-        name='AI Articles',
-        line=dict(color='#2563eb', width=3),
-        marker=dict(size=8, color='#2563eb'),
-        fill='tozeroy',
-        fillcolor='rgba(37, 99, 235, 0.1)'
-    ))
-
-    fig.update_layout(
-        title="AI Adoption Over Time",
-        xaxis_title="",
-        yaxis_title="Number of AI Articles",
-        height=450,
-        template='plotly_white',
-        showlegend=False,
-        margin=dict(l=60, r=20, t=60, b=80),
-        font=dict(size=12, family="Arial, sans-serif"),
-        hovermode='x unified'
-    )
-
-    return fig
-
 def create_use_case_bar_chart(df):
     """Bar chart of AI use cases."""
     if df is None or len(df) == 0:
@@ -430,31 +395,7 @@ def main():
 
     st.markdown("---")
 
-    # 3. AI Adoption Time Series
-    st.subheader("📈 AI Adoption Over Time")
-
-    adoption_ts = create_ai_adoption_timeseries(df)
-    if adoption_ts:
-        st.plotly_chart(adoption_ts, use_container_width=True)
-
-        # Monthly growth stats
-        monthly = df.groupby('year_month').size()
-        if len(monthly) > 1:
-            latest_month = monthly.iloc[-1]
-            prev_month = monthly.iloc[-2]
-            growth = ((latest_month - prev_month) / prev_month * 100) if prev_month > 0 else 0
-
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Latest Month", f"{latest_month} articles")
-            with col2:
-                st.metric("Previous Month", f"{prev_month} articles")
-            with col3:
-                st.metric("Month-over-Month Growth", f"{growth:+.1f}%")
-
-    st.markdown("---")
-
-    # 4. Use Case Distribution
+    # 3. Use Case Distribution
     st.subheader("🎯 AI Use Case Distribution")
 
     col1, col2 = st.columns([2, 1])
@@ -489,7 +430,7 @@ def main():
 
     st.markdown("---")
 
-    # 5. Company Rankings
+    # 4. Company Rankings
     st.subheader("🏢 Top Companies by AI Activity")
 
     company_chart = create_company_bar_chart(df)
