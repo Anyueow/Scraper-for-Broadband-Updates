@@ -1,0 +1,6 @@
+use_case,roi_category,total_roi_claims,avg_credibility,claims_with_percentage,claims_with_amount,avg_percentage,median_percentage,cost_reduction_claims,revenue_growth_claims,time_savings_claims,unique_companies
+other,Other/General,37,65.27027027027027,0,1,,,7,9,19,2
+customer_support_experience,Customer Support & Experience,6,79.16666666666667,0,0,,,0,0,3,6
+network_optimization_performance,Network Optimization & Performance,4,78.75,0,0,,,1,1,2,1
+security_fraud_threat,"Security, Fraud & Threat Detection",2,80.0,0,0,,,0,1,1,2
+network_planning_deployment,Network Planning & Deployment,1,80.0,0,0,,,1,0,0,1

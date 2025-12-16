@@ -33,7 +33,7 @@ class BroadbandAIAnalyzer:
     ]
 
     def __init__(self,
-                 scraped_output_dir="../Scraped Output",
+                 scraped_output_dir="../../Scraped Output",
                  model_name="gpt-oss:20b-cloud",
                  fallback_model="gpt-oss:20b",
                  cache_file="analysis_cache_enhanced.json",
@@ -684,68 +684,217 @@ Example response format:
 
         return validated
 
-    def load_and_normalize_csvs(self) -> pd.DataFrame:
+    def load_pre_analyzed_articles(self) -> pd.DataFrame:
         """
-        Load all CSV files and normalize them into a unified format.
+        Load pre-analyzed articles from increased_scope.csv and big_firm_unified_analysis.csv.
+        These articles already have LLM analysis completed, so we just need to normalize their format.
 
         Returns:
-            DataFrame with normalized data
+            DataFrame with pre-analyzed articles in normalized format
         """
+        all_pre_analyzed = []
+
+        # 1. Load increased_scope.csv (manually curated AI articles)
+        increased_scope_path = os.path.join(os.path.dirname(__file__), "../../increased_scope.csv")
+        if os.path.exists(increased_scope_path):
+            try:
+                df = pd.read_csv(increased_scope_path)
+                print(f"  ✓ Loaded increased_scope.csv: {len(df)} articles")
+
+                # Convert text confidence to numeric
+                confidence_map = {
+                    'High': 0.9,
+                    'Medium': 0.7,
+                    'Low': 0.5
+                }
+
+                # These articles are already analyzed, so add them with 'already_analyzed' flag
+                for _, row in df.iterrows():
+                    # Convert confidence
+                    conf_raw = row.get('primary_use_case_confidence', 0.0)
+                    if isinstance(conf_raw, str):
+                        confidence = confidence_map.get(conf_raw, 0.7)
+                    else:
+                        confidence = float(conf_raw) if pd.notna(conf_raw) else 0.7
+
+                    # Parse word_count robustly (handle extra quotes/spaces)
+                    wc_raw = str(row.get('word_count', '0')).strip().replace('"', '').replace("'", '')
+                    try:
+                        word_count = int(wc_raw) if wc_raw.isdigit() else 0
+                    except:
+                        word_count = 0
+
+                    # Note: increased_scope.csv has descriptive use cases, not standardized codes
+                    # We'll keep them as-is since they're manually curated
+                    normalized = {
+                        'source': str(row.get('source', 'Manual')),
+                        'date': self.normalize_date(row.get('date', '')),
+                        'title': str(row.get('title', '')).strip(),
+                        'url': str(row.get('url', '')).strip(),
+                        'content': str(row.get('summary', '')),  # Use summary as content
+                        'word_count': word_count,
+                        'already_analyzed': True,
+                        'primary_use_case': 'other',  # Default to 'other' for non-standard use cases
+                        'primary_use_case_confidence': confidence,
+                        'ai_use_cases': str(row.get('ai_use_cases', '')),
+                        'sentiment': str(row.get('sentiment', 'not_applicable')).lower(),
+                        'ai_mention_count': int(row.get('ai_mention_count', 0)) if pd.notna(row.get('ai_mention_count')) else 0,
+                        'ai_mentions': str(row.get('ai_mentions', '')),
+                        'title_ai_mention_count': int(row.get('title_ai_mention_count', 0)) if pd.notna(row.get('title_ai_mention_count')) else 0,
+                        'title_ai_mentions': str(row.get('title_ai_mentions', '')),
+                        'summary': str(row.get('summary', '')),
+                        'companies_mentioned': '',  # Will extract from existing data if available
+                        'technologies_foundation_models': '',
+                        'technologies_platforms': '',
+                        'technologies_infrastructure': '',
+                        'technologies_techniques': ''
+                    }
+
+                    if normalized['title'] and normalized['title'] != 'nan':
+                        all_pre_analyzed.append(normalized)
+
+            except Exception as e:
+                print(f"  ✗ Error loading increased_scope.csv: {e}")
+                import traceback
+                traceback.print_exc()
+
+        # 2. Load big_firm_unified_analysis.csv (company-specific AI articles)
+        big_firm_path = os.path.join(os.path.dirname(__file__), "../../big firm analysis/big_firm_unified_analysis.csv")
+        if os.path.exists(big_firm_path):
+            try:
+                df = pd.read_csv(big_firm_path)
+                print(f"  ✓ Loaded big_firm_unified_analysis.csv: {len(df)} articles")
+
+                for _, row in df.iterrows():
+                    # Extract technologies from key_technologies field
+                    key_techs = str(row.get('key_technologies', ''))
+
+                    normalized = {
+                        'source': str(row.get('source', 'BigFirm')),
+                        'date': self.normalize_date(row.get('date', '')),
+                        'title': str(row.get('title', '')).strip(),
+                        'url': str(row.get('url', '')).strip(),
+                        'content': str(row.get('summary', '')),
+                        'word_count': int(row.get('word_count', 0)) if pd.notna(row.get('word_count')) else 0,
+                        'already_analyzed': True,
+                        'primary_use_case': str(row.get('primary_use_case', '')),
+                        'primary_use_case_confidence': float(row.get('primary_use_case_confidence', 0.0)) if pd.notna(row.get('primary_use_case_confidence')) else 0.0,
+                        'ai_use_cases': str(row.get('ai_use_cases', '')),
+                        'sentiment': str(row.get('sentiment', 'not_applicable')),
+                        'ai_mention_count': int(row.get('ai_mention_count', 0)) if pd.notna(row.get('ai_mention_count')) else 0,
+                        'ai_mentions': str(row.get('ai_mentions', '')),
+                        'title_ai_mention_count': int(row.get('title_ai_mention_count', 0)) if pd.notna(row.get('title_ai_mention_count')) else 0,
+                        'title_ai_mentions': str(row.get('title_ai_mentions', '')),
+                        'summary': str(row.get('summary', '')),
+                        'companies_mentioned': str(row.get('company', '')),  # Use company field
+                        'technologies_foundation_models': '',
+                        'technologies_platforms': key_techs,  # Put all tech in platforms for now
+                        'technologies_infrastructure': '',
+                        'technologies_techniques': ''
+                    }
+
+                    if normalized['title'] and normalized['title'] != 'nan':
+                        all_pre_analyzed.append(normalized)
+
+            except Exception as e:
+                print(f"  ✗ Error loading big_firm_unified_analysis.csv: {e}")
+
+        if all_pre_analyzed:
+            return pd.DataFrame(all_pre_analyzed)
+        else:
+            return pd.DataFrame()
+
+    def load_and_normalize_csvs(self) -> pd.DataFrame:
+        """
+        Load all CSV files (scraped + pre-analyzed) and normalize them into a unified format.
+
+        Returns:
+            DataFrame with normalized data from all sources
+        """
+        print("Loading data from all sources...")
+
+        # 1. Load scraped articles (require LLM analysis)
         csv_files = list(Path(self.scraped_output_dir).glob("*.csv"))
 
         if not csv_files:
-            raise Exception(f"No CSV files found in {self.scraped_output_dir}")
+            print(f"⚠ No CSV files found in {self.scraped_output_dir}")
+            scraped_data = []
+        else:
+            print(f"\n📂 Loading {len(csv_files)} scraped CSV file(s)...")
+            scraped_data = []
 
-        print(f"Loading {len(csv_files)} CSV file(s)...")
+            for csv_file in csv_files:
+                try:
+                    df = pd.read_csv(csv_file)
 
-        all_data = []
-
-        for csv_file in csv_files:
-            try:
-                df = pd.read_csv(csv_file)
-
-                # Check for required columns
-                if 'Article Title' not in df.columns:
-                    print(f"Warning: Skipping {csv_file.name} - no 'Article Title' column")
-                    continue
-
-                # Normalize each row
-                for _, row in df.iterrows():
-                    normalized = {
-                        'source': self.normalize_source(row.get('Website', '')),
-                        'date': self.normalize_date(row.get('Date', '')),
-                        'title': str(row.get('Article Title', '')).strip(),
-                        'url': str(row.get('Article Link', '')).strip(),
-                        'content': self.clean_content(row.get('Article content', '')),
-                        'word_count': len(str(row.get('Article content', '')).split())
-                    }
-
-                    # Skip empty titles
-                    if not normalized['title'] or normalized['title'] == 'nan':
+                    # Check for required columns
+                    if 'Article Title' not in df.columns:
+                        print(f"  Warning: Skipping {csv_file.name} - no 'Article Title' column")
                         continue
 
-                    all_data.append(normalized)
+                    # Normalize each row
+                    for _, row in df.iterrows():
+                        normalized = {
+                            'source': self.normalize_source(row.get('Website', '')),
+                            'date': self.normalize_date(row.get('Date', '')),
+                            'title': str(row.get('Article Title', '')).strip(),
+                            'url': str(row.get('Article Link', '')).strip(),
+                            'content': self.clean_content(row.get('Article content', '')),
+                            'word_count': len(str(row.get('Article content', '')).split()),
+                            'already_analyzed': False
+                        }
 
-                print(f"  ✓ Loaded {csv_file.name}: {len(df)} articles")
+                        # Skip empty titles
+                        if not normalized['title'] or normalized['title'] == 'nan':
+                            continue
 
-            except Exception as e:
-                print(f"  ✗ Error loading {csv_file.name}: {e}")
+                        scraped_data.append(normalized)
 
-        if not all_data:
-            raise Exception("No valid articles found in CSV files")
+                    print(f"  ✓ Loaded {csv_file.name}: {len(df)} articles")
 
-        df = pd.DataFrame(all_data)
+                except Exception as e:
+                    print(f"  ✗ Error loading {csv_file.name}: {e}")
 
-        # Remove duplicates based on URL
+        # 2. Load pre-analyzed articles
+        print(f"\n📂 Loading pre-analyzed articles...")
+        pre_analyzed_df = self.load_pre_analyzed_articles()
+
+        # 3. Combine all sources
+        if scraped_data:
+            scraped_df = pd.DataFrame(scraped_data)
+        else:
+            scraped_df = pd.DataFrame()
+
+        # Merge both dataframes
+        if not scraped_df.empty and not pre_analyzed_df.empty:
+            df = pd.concat([scraped_df, pre_analyzed_df], ignore_index=True)
+        elif not scraped_df.empty:
+            df = scraped_df
+        elif not pre_analyzed_df.empty:
+            df = pre_analyzed_df
+        else:
+            raise Exception("No valid articles found from any source")
+
+        # Remove duplicates based on URL or title
+        original_count = len(df)
         df = df.drop_duplicates(subset=['url'], keep='first')
+        duplicates_removed = original_count - len(df)
 
-        print(f"\nTotal unique articles loaded: {len(df)}")
+        print(f"\n📊 Summary:")
+        print(f"  - Scraped articles: {len(scraped_df) if not scraped_df.empty else 0}")
+        print(f"  - Pre-analyzed articles: {len(pre_analyzed_df) if not pre_analyzed_df.empty else 0}")
+        print(f"  - Duplicates removed: {duplicates_removed}")
+        print(f"  - Total unique articles: {len(df)}")
+        print(f"  - Pre-analyzed (skip LLM): {len(df[df.get('already_analyzed', False) == True]) if 'already_analyzed' in df.columns else 0}")
+        print(f"  - Require LLM analysis: {len(df[df.get('already_analyzed', False) == False]) if 'already_analyzed' in df.columns else len(df)}")
 
         return df
 
     def process_articles(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Process all articles through LLM analysis.
+        Process articles through LLM analysis.
+        Pre-analyzed articles (from increased_scope.csv and big_firm_unified_analysis.csv)
+        are skipped and their existing analysis is preserved.
 
         Args:
             df: DataFrame with normalized article data
@@ -753,14 +902,49 @@ Example response format:
         Returns:
             DataFrame with LLM analysis results added
         """
-        print(f"\nProcessing {len(df)} articles through LLM analysis...")
+        # Count pre-analyzed vs. requiring analysis
+        pre_analyzed_count = len(df[df.get('already_analyzed', False) == True]) if 'already_analyzed' in df.columns else 0
+        needs_analysis_count = len(df) - pre_analyzed_count
+
+        print(f"\nProcessing {len(df)} total articles:")
+        print(f"  - Pre-analyzed (skip LLM): {pre_analyzed_count}")
+        print(f"  - Require LLM analysis: {needs_analysis_count}")
         print(f"Using model: {self.active_model}")
 
         results = []
 
         # Process with progress bar
-        for idx, row in tqdm(df.iterrows(), total=len(df), desc="Analyzing articles"):
+        for idx, row in tqdm(df.iterrows(), total=len(df), desc="Processing articles"):
             try:
+                # Check if article is already analyzed
+                if row.get('already_analyzed', False):
+                    # Use existing analysis data, just ensure all fields are present
+                    result = {
+                        'source': row.get('source', ''),
+                        'date': row.get('date', ''),
+                        'title': row.get('title', ''),
+                        'url': row.get('url', ''),
+                        'content': row.get('content', ''),
+                        'word_count': row.get('word_count', 0),
+                        'primary_use_case': row.get('primary_use_case', ''),
+                        'primary_use_case_confidence': row.get('primary_use_case_confidence', 0.0),
+                        'ai_use_cases': row.get('ai_use_cases', ''),
+                        'sentiment': row.get('sentiment', 'not_applicable'),
+                        'ai_mention_count': row.get('ai_mention_count', 0),
+                        'ai_mentions': row.get('ai_mentions', ''),
+                        'title_ai_mentions': row.get('title_ai_mentions', ''),
+                        'title_ai_mention_count': row.get('title_ai_mention_count', 0),
+                        'summary': row.get('summary', ''),
+                        'companies_mentioned': row.get('companies_mentioned', ''),
+                        'technologies_foundation_models': row.get('technologies_foundation_models', ''),
+                        'technologies_platforms': row.get('technologies_platforms', ''),
+                        'technologies_infrastructure': row.get('technologies_infrastructure', ''),
+                        'technologies_techniques': row.get('technologies_techniques', '')
+                    }
+                    results.append(result)
+                    continue
+
+                # Article needs LLM analysis
                 analysis = self.analyze_article_with_llm(
                     title=row['title'],
                     content=row['content'],
@@ -774,7 +958,12 @@ Example response format:
 
                 # Combine original data with analysis
                 result = {
-                    **row.to_dict(),
+                    'source': row['source'],
+                    'date': row['date'],
+                    'title': row['title'],
+                    'url': row['url'],
+                    'content': row['content'],
+                    'word_count': row['word_count'],
                     'primary_use_case': analysis['primary_use_case'],
                     'primary_use_case_confidence': analysis['primary_use_case_confidence'],
                     'ai_use_cases': ','.join(analysis['ai_use_cases']),
@@ -802,7 +991,12 @@ Example response format:
                 print(f"\nError processing article {idx}: {e}")
                 # Add row with empty analysis on error
                 results.append({
-                    **row.to_dict(),
+                    'source': row.get('source', ''),
+                    'date': row.get('date', ''),
+                    'title': row.get('title', ''),
+                    'url': row.get('url', ''),
+                    'content': row.get('content', ''),
+                    'word_count': row.get('word_count', 0),
                     'primary_use_case': None,
                     'primary_use_case_confidence': 0.0,
                     'ai_use_cases': '',
