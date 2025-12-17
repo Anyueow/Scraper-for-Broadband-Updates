@@ -1,0 +1,352 @@
+# Telco AI Analysis Project - Git Ignore Rules
+# Last Updated: December 14, 2025
+
+# ============================================================================
+# Python
+# ============================================================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# ============================================================================
+# Project-Specific - Large Data Files
+# ============================================================================
+# Cache files (too large for git, but essential - keep locally)
+02_analysis/caches/*.json
+!02_analysis/caches/.gitkeep
+!02_analysis/caches/cache_README.md
+
+# Large raw scrape outputs (keep only latest in git)
+01_data_collection/raw_outputs/*.csv
+!01_data_collection/raw_outputs/.gitkeep
+01_data_collection/raw_outputs/scraping_logs/*.log
+
+# Processed data backups (keep master files only)
+03_processed_data/*_backup_*.csv
+03_processed_data/*_YYYYMMDD.csv
+
+# Temporary analysis outputs
+04_advanced_analysis/temp/
+04_advanced_analysis/*.tmp
+
+# Dashboard cache
+05_visualizations/.streamlit/cache/
+
+# ============================================================================
+# Sensitive Data
+# ============================================================================
+# API keys and credentials
+**/secrets.json
+**/credentials.json
+**/.env.local
+**/.env.*.local
+
+# Personal notes (may contain unpublished research)
+**/PERSONAL_NOTES.md
+**/TODO_PRIVATE.md
+
+# ============================================================================
+# Operating System Files
+# ============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================================================
+# IDEs and Editors
+# ============================================================================
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+Sessionx.vim
+.netrwhist
+tags
+[._]*.un~
+
+# ============================================================================
+# Output Files (Conditionally Ignored)
+# ============================================================================
+# Keep final reports, ignore drafts
+06_outputs/reports/*_draft*.pdf
+06_outputs/reports/*_v0*.pdf
+06_outputs/reports/~$*.docx
+
+# Keep publication charts, ignore work-in-progress
+05_visualizations/publication_charts/*_wip.png
+05_visualizations/publication_charts/*_draft.svg
+
+# ============================================================================
+# Logs and Temporary Files
+# ============================================================================
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*~.nib
+local.properties
+
+# ============================================================================
+# Archive / Old Structure (Post-Refactor)
+# ============================================================================
+# Keep archive directory but ignore its contents (reduce repo size)
+archive/old_structure/*
+!archive/old_structure/README.md
+archive/deprecated_scripts/*
+!archive/deprecated_scripts/README.md
+
+# ============================================================================
+# Validation & Review Files
+# ============================================================================
+# Keep validation scripts, ignore large log outputs
+07_validation/validation_logs/*.json
+!07_validation/validation_logs/.gitkeep
+
+# Expert review responses (may contain private feedback)
+07_validation/expert_review/review_responses/*.pdf
+07_validation/expert_review/review_responses/*.docx
+!07_validation/expert_review/review_responses/.gitkeep
+
+# ============================================================================
+# Supplementary Data (Large External Datasets)
+# ============================================================================
+# LinkedIn job data (scraped, regenerable)
+08_supplementary_data/linkedin_job_analysis/*.csv
+!08_supplementary_data/linkedin_job_analysis/job_title_taxonomy.json
+
+# Conference data (manually curated, keep in git)
+# (no ignore rules - keep all)
+
+# Earnings call transcripts (large text files)
+08_supplementary_data/company_financials/earnings_call_transcripts/*.txt
+!08_supplementary_data/company_financials/earnings_call_transcripts/.gitkeep
+
+# ============================================================================
+# Keep These Files (Explicitly Track)
+# ============================================================================
+# Core documentation
+!README.md
+!CLAUDE.md
+!STRATEGIC_ANALYSIS.md
+!REPOSITORY_STRUCTURE.md
+!METHODOLOGY.md
+!CHANGELOG.md
+
+# Configuration files
+!requirements.txt
+!requirements_dashboard.txt
+!.gitignore
+
+# Taxonomy definitions (critical for reproducibility)
+!02_analysis/configs/*.json
+
+# Master datasets (unless very large >50MB)
+!03_processed_data/unified_ai_analysis.csv
+!03_processed_data/big_firm_analysis.csv
+!03_processed_data/company_profiles.csv
+!03_processed_data/use_case_statistics.csv
+!03_processed_data/data_dictionary.md
+
+# Manual inputs (curated data, essential)
+!01_data_collection/manual_inputs/*.csv
+!01_data_collection/manual_inputs/*.xlsx
+!01_data_collection/manual_inputs/README.md
+
+# ============================================================================
+# Git LFS (Large File Storage) - If Enabled
+# ============================================================================
+# Uncomment if using Git LFS for large files
+# *.csv filter=lfs diff=lfs merge=lfs -text
+# *.json filter=lfs diff=lfs merge=lfs -text
+# *.xlsx filter=lfs diff=lfs merge=lfs -text
+
+# ============================================================================
+# Custom Project Rules
+# ============================================================================
+# Add project-specific ignore rules below this line
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Local development database (if applicable)
+*.db
+*.sqlite
+*.sqlite3
+
+# Compiled LaTeX (for academic papers)
+06_outputs/reports/*.aux
+06_outputs/reports/*.bbl
+06_outputs/reports/*.blg
+06_outputs/reports/*.log
+06_outputs/reports/*.out
+06_outputs/reports/*.toc
+06_outputs/reports/*.synctex.gz
+
+# Keep final PDFs
+!06_outputs/reports/full_report.pdf
+!06_outputs/reports/executive_summary.pdf
+!06_outputs/reports/industry_benchmark_report.pdf

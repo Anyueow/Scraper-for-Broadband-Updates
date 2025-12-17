@@ -1,0 +1,314 @@
+{
+  "_comment": "Technology Stack Taxonomy for Telco AI Analysis",
+  "_version": "1.0",
+  "_last_updated": "2025-12-14",
+  "_purpose": "Categorize AI technologies, platforms, and vendors mentioned in articles",
+
+  "foundation_models": {
+    "commercial_llms": [
+      "GPT-3", "GPT-3.5", "GPT-4", "GPT-4 Turbo", "GPT-4o",
+      "Claude", "Claude 2", "Claude 3", "Claude Sonnet", "Claude Opus",
+      "Gemini", "Gemini Pro", "Gemini Ultra",
+      "PaLM", "PaLM 2",
+      "LLaMA", "LLaMA 2", "LLaMA 3",
+      "Mistral", "Mixtral",
+      "Azure OpenAI Service",
+      "Google Vertex AI",
+      "Amazon Bedrock"
+    ],
+    "open_source_llms": [
+      "Ollama",
+      "Qwen", "Qwen2.5",
+      "DeepSeek",
+      "Falcon",
+      "Phi", "Phi-2", "Phi-3",
+      "Vicuna",
+      "Alpaca"
+    ],
+    "proprietary_models": [
+      "proprietary LLM",
+      "in-house model",
+      "custom-trained model",
+      "internal AI model"
+    ]
+  },
+
+  "ai_platforms": {
+    "customer_experience": [
+      "ServiceNow AI Platform",
+      "NICE CXone",
+      "NICE CXone Mpower",
+      "Genesys Cloud AI",
+      "Zendesk AI",
+      "Salesforce Einstein",
+      "Freshdesk AI"
+    ],
+    "network_operations": [
+      "Nokia AVA",
+      "Ericsson Intelligent Automation Platform",
+      "Huawei iMaster NCE",
+      "Cisco Crosswork",
+      "Juniper Apstra"
+    ],
+    "data_platforms": [
+      "Lenses.io",
+      "Domo",
+      "Databricks",
+      "Snowflake",
+      "Confluent"
+    ],
+    "field_operations": [
+      "IQGeo",
+      "Vyntelligence",
+      "Deepomatic Lens"
+    ],
+    "orchestration_frameworks": [
+      "LangChain",
+      "LangGraph",
+      "LlamaIndex",
+      "Haystack",
+      "Semantic Kernel"
+    ]
+  },
+
+  "cloud_infrastructure": {
+    "public_cloud": [
+      "AWS", "Amazon Web Services",
+      "Azure", "Microsoft Azure",
+      "Google Cloud", "Google Cloud Platform", "GCP",
+      "IBM Cloud",
+      "Oracle Cloud"
+    ],
+    "edge_compute": [
+      "AWS Outposts",
+      "Azure Stack",
+      "Google Distributed Cloud"
+    ],
+    "on_premise": [
+      "on-premise", "on-prem",
+      "private cloud",
+      "self-hosted",
+      "local deployment"
+    ]
+  },
+
+  "ai_techniques": {
+    "deep_learning": [
+      "neural networks",
+      "convolutional neural networks", "CNN",
+      "recurrent neural networks", "RNN",
+      "long short-term memory", "LSTM",
+      "transformers",
+      "attention mechanisms",
+      "deep learning"
+    ],
+    "nlp": [
+      "natural language processing", "NLP",
+      "text-to-speech", "TTS",
+      "speech-to-text", "STT",
+      "sentiment analysis",
+      "named entity recognition", "NER",
+      "intent detection",
+      "language models"
+    ],
+    "computer_vision": [
+      "computer vision",
+      "image recognition",
+      "object detection",
+      "image classification",
+      "video analytics",
+      "optical character recognition", "OCR"
+    ],
+    "machine_learning": [
+      "supervised learning",
+      "unsupervised learning",
+      "reinforcement learning",
+      "transfer learning",
+      "federated learning",
+      "ensemble methods",
+      "random forests",
+      "gradient boosting",
+      "XGBoost"
+    ],
+    "specialized": [
+      "anomaly detection",
+      "predictive analytics",
+      "time series forecasting",
+      "recommendation systems",
+      "clustering",
+      "dimensionality reduction"
+    ],
+    "emerging": [
+      "agentic AI",
+      "AI agents",
+      "autonomous AI",
+      "multimodal AI",
+      "retrieval-augmented generation", "RAG",
+      "prompt engineering",
+      "fine-tuning",
+      "chain-of-thought"
+    ]
+  },
+
+  "network_technologies": {
+    "ai_in_ran": [
+      "Open RAN", "O-RAN",
+      "RAN Intelligent Controller", "RIC",
+      "xApps",
+      "rApps",
+      "self-organizing networks", "SON"
+    ],
+    "ai_in_core": [
+      "intent-based networking",
+      "network slicing",
+      "network function virtualization", "NFV",
+      "software-defined networking", "SDN",
+      "network automation",
+      "zero-touch provisioning"
+    ],
+    "ai_in_edge": [
+      "edge AI",
+      "edge computing",
+      "multi-access edge computing", "MEC",
+      "fog computing"
+    ]
+  },
+
+  "data_infrastructure": {
+    "streaming": [
+      "Apache Kafka",
+      "Amazon Kinesis",
+      "Azure Event Hubs",
+      "Confluent Kafka",
+      "Apache Flink",
+      "Apache Spark Streaming"
+    ],
+    "storage": [
+      "data lake",
+      "data warehouse",
+      "Snowflake",
+      "Amazon S3",
+      "Azure Blob Storage",
+      "Google Cloud Storage"
+    ],
+    "processing": [
+      "Apache Spark",
+      "Hadoop",
+      "Presto",
+      "Databricks",
+      "BigQuery"
+    ]
+  },
+
+  "integration_categories": {
+    "bundled_services": {
+      "_comment": "AI services bundled with telco offerings to increase retention",
+      "examples": [
+        "Perplexity Premium",
+        "ChatGPT Plus",
+        "Microsoft Copilot",
+        "Google One AI",
+        "AI-powered cybersecurity",
+        "AI-enhanced parental controls"
+      ]
+    },
+    "ai_readiness": {
+      "_comment": "Infrastructure positioned for AI workloads",
+      "indicators": [
+        "AI-ready infrastructure",
+        "AI-optimized network",
+        "AI data center",
+        "AI corridor",
+        "GPU cluster",
+        "high-performance computing", "HPC",
+        "low-latency routes",
+        "400G", "800G"
+      ]
+    }
+  },
+
+  "build_vs_buy_indicators": {
+    "build_internal": [
+      "in-house development",
+      "custom-built",
+      "proprietary",
+      "internally developed",
+      "built by our team",
+      "developed internally",
+      "home-grown"
+    ],
+    "buy_external": [
+      "partnered with",
+      "powered by",
+      "using [Vendor]",
+      "deployed [Platform]",
+      "leveraging [Service]",
+      "integrated with",
+      "procured from"
+    ],
+    "hybrid": [
+      "customized",
+      "tailored",
+      "extended",
+      "built on top of",
+      "integrated and extended"
+    ]
+  },
+
+  "vendor_partnerships": {
+    "_comment": "Track key vendor relationships",
+    "strategic_partnerships": [
+      "Microsoft partnership",
+      "Google Cloud partnership",
+      "AWS partnership",
+      "ServiceNow collaboration",
+      "Nokia agreement",
+      "Ericsson deal"
+    ]
+  },
+
+  "extraction_hints": {
+    "_comment": "Patterns to help identify technologies in text",
+    "strong_signals": [
+      "using [Technology]",
+      "deployed [Technology]",
+      "powered by [Technology]",
+      "built on [Technology]",
+      "running on [Technology]",
+      "[Technology]-based solution",
+      "leveraging [Technology]"
+    ],
+    "weak_signals": [
+      "exploring [Technology]",
+      "considering [Technology]",
+      "evaluating [Technology]",
+      "piloting [Technology]"
+    ],
+    "exclusions": [
+      "OpenAI (when referring to the company, not Azure OpenAI Service)",
+      "AI (generic term, not a technology)",
+      "machine learning (generic term unless specific context)"
+    ]
+  },
+
+  "maturity_classification": {
+    "_comment": "Classify technologies by adoption maturity",
+    "mainstream": [
+      "LLMs", "chatbots", "NLP", "supervised learning",
+      "cloud platforms (AWS, Azure, GCP)",
+      "anomaly detection", "predictive analytics"
+    ],
+    "growing": [
+      "RAG", "agentic AI", "multimodal AI",
+      "Open RAN with AI",
+      "edge AI",
+      "federated learning"
+    ],
+    "emerging": [
+      "autonomous AI agents",
+      "AI-native networks",
+      "quantum ML",
+      "neuromorphic computing"
+    ]
+  }
+}

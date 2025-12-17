@@ -1,0 +1,128 @@
+{
+  "https://www.ispreview.co.uk/index.php/2025/11/broadband-isp-talktalk-increases-uk-mid-contract-price-hikes-to-4.html": {
+    "has_ai_content": false,
+    "ai_mentions": [],
+    "ai_mention_count": 0,
+    "primary_use_case": null,
+    "primary_use_case_confidence": 0.0,
+    "ai_use_cases": [],
+    "sentiment": "not_applicable",
+    "summary": "N/A",
+    "companies_mentioned": [],
+    "technologies": {
+      "foundation_models": [],
+      "platforms": [],
+      "infrastructure": [],
+      "techniques": []
+    }
+  },
+  "https://www.ispreview.co.uk/index.php/2025/11/house-of-lords-report-calls-for-uk-broadband-investment-to-boost-home-working.html": {
+    "has_ai_content": false,
+    "ai_mentions": [],
+    "ai_mention_count": 0,
+    "primary_use_case": null,
+    "primary_use_case_confidence": 0.0,
+    "ai_use_cases": [],
+    "sentiment": "not_applicable",
+    "summary": "N/A",
+    "companies_mentioned": [],
+    "technologies": {
+      "foundation_models": [],
+      "platforms": [],
+      "infrastructure": [],
+      "techniques": []
+    }
+  },
+  "https://www.ispreview.co.uk/index.php/2025/11/full-fibres-impact-fibrus-report-makes-three-predictions-for-uk-rural-areas-in-2025.html": {
+    "has_ai_content": false,
+    "ai_mentions": [],
+    "ai_mention_count": 0,
+    "primary_use_case": null,
+    "primary_use_case_confidence": 0.0,
+    "ai_use_cases": [],
+    "sentiment": "not_applicable",
+    "summary": "N/A",
+    "companies_mentioned": [],
+    "technologies": {
+      "foundation_models": [],
+      "platforms": [],
+      "infrastructure": [],
+      "techniques": []
+    }
+  },
+  "https://www.ispreview.co.uk/index.php/2025/11/isp-octaplus-test-new-ai-support-system-with-uk-broadband-customers.html": {
+    "has_ai_content": true,
+    "ai_mentions": [
+      "AI",
+      "Artificial Intelligence",
+      "machine learning",
+      "natural language processing",
+      "chatbot"
+    ],
+    "ai_mention_count": 5,
+    "primary_use_case": "customer_support_experience",
+    "primary_use_case_confidence": 0.95,
+    "ai_use_cases": [
+      "customer_support_experience"
+    ],
+    "sentiment": "positive",
+    "summary": "Octaplus has launched an early‑stage rollout of Ask Octa AI, an AI‑powered chatbot that delivers instant support and troubleshooting assistance to broadband customers. Leveraging machine learning and natural language processing, the system aims to improve customer experience by providing quick, automated responses to common queries. The initiative demonstrates the company’s commitment to enhancing service quality through AI‑driven customer support.",
+    "companies_mentioned": [
+      "Octaplus"
+    ],
+    "technologies": {
+      "foundation_models": [],
+      "platforms": [],
+      "infrastructure": [],
+      "techniques": [
+        "machine learning",
+        "natural language processing"
+      ]
+    }
+  },
+  "https://www.ispreview.co.uk/index.php/2025/11/city-of-london-corp-picks-roc-technologies-to-deliver-new-network.html": {
+    "has_ai_content": true,
+    "ai_mentions": [
+      "AI"
+    ],
+    "ai_mention_count": 1,
+    "primary_use_case": "other",
+    "primary_use_case_confidence": 0.6,
+    "ai_use_cases": [
+      "other"
+    ],
+    "sentiment": "positive",
+    "summary": "The City of London Corporation has partnered with Roc Technologies to deploy an AI‑driven wireless capability as part of a new end‑to‑end networking solution, including a UK‑first enterprise SASE rollout and high‑availability internet connectivity. The AI component is intended to enhance wireless network performance, though specific details are not disclosed. This initiative aims to modernise public‑sector connectivity and leverage advanced AI for improved network efficiency.",
+    "companies_mentioned": [
+      "Roc Technologies",
+      "Vorboss"
+    ],
+    "technologies": {
+      "foundation_models": [],
+      "platforms": [],
+      "infrastructure": [],
+      "techniques": []
+    }
+  },
+  "https://fibrenews.co.uk/ogi-completes-multimillion-pound-cardiff-fibre-upgrade-connecting-businesses-to-a-digital-future/": {
+    "has_ai_content": false,
+    "ai_mentions": [
+      "AI"
+    ],
+    "ai_mention_count": 1,
+    "primary_use_case": null,
+    "primary_use_case_confidence": 0.0,
+    "ai_use_cases": [],
+    "sentiment": "positive",
+    "summary": "N/A",
+    "companies_mentioned": [
+      "Ogi"
+    ],
+    "technologies": {
+      "foundation_models": [],
+      "platforms": [],
+      "infrastructure": [],
+      "techniques": []
+    }
+  }
+}
