@@ -348,7 +348,7 @@ Check: credibility_score to validate trustworthiness
 - `03_processed_data/vendor_market_share.csv`
 
 **For visualizations:**
-- `06_outputs/visualizations/company_roi_claims.png` ⭐ MAIN CHART
+- `06_outputs/visualizations/company_roi_claims.png` 
 
 **For executive summary:**
 - `06_outputs/FINAL_ANALYSIS_REPORT.txt`
