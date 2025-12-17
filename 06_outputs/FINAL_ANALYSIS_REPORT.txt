@@ -1,7 +1,7 @@
 ================================================================================
 UK BROADBAND AI TRENDS ANALYSIS - FINAL REPORT
 ================================================================================
-Generated: 2025-12-15 21:35:41
+Generated: 2025-12-17 15:19:50
 
 1. TECHNOLOGY STACK ANALYSIS
 --------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ Generated: 2025-12-15 21:35:41
   Companies analyzed: 1
   Industry average: 0.0% Build, 100.0% Buy, 0.0% Hybrid
   Top 5 companies by AI activity:
-    - BT: 4 articles
+    - BT: 8 articles
 
 4. ROI IMPACT ANALYSIS
 --------------------------------------------------------------------------------
@@ -47,12 +47,12 @@ Generated: 2025-12-15 21:35:41
 
 6. OUTPUT FILES GENERATED
 --------------------------------------------------------------------------------
-  ✓ 02_analysis/pipelines/unified_ai_analysis_enhanced.csv (496.5 KB)
+  ✓ 02_analysis/pipelines/unified_ai_analysis_enhanced.csv (496.8 KB)
   ✓ 03_processed_data/technology_mentions.csv (0.5 KB)
   ✓ 03_processed_data/vendor_market_share.csv (0.3 KB)
   ✓ 03_processed_data/build_vs_buy_analysis.csv (0.1 KB)
-  ✓ 03_processed_data/roi_impact_analysis.csv (13.7 KB)
-  ✓ 03_processed_data/roi_by_company.csv (1.4 KB)
+  ✓ 03_processed_data/roi_impact_analysis.csv (13.9 KB)
+  ✓ 03_processed_data/roi_by_company.csv (2.1 KB)
   ✓ 03_processed_data/roi_by_use_case.csv (0.6 KB)
   ✓ 5 visualization(s) in 06_outputs/visualizations
 

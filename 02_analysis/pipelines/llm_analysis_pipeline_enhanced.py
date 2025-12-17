@@ -724,12 +724,55 @@ Example response format:
                     except:
                         word_count = 0
 
+                    # Extract companies from source field and title
+                    companies_found = []
+                    source_name = str(row.get('source', ''))
+                    title = str(row.get('title', ''))
+
+                    # Map source names to canonical company names
+                    company_mapping = {
+                        'Colt Technology Services': 'Colt',
+                        'Colt': 'Colt',
+                        'Zayo': 'Zayo',
+                        'Neos Networks': 'Neos Networks',
+                        'Virgin Media O2': 'Virgin Media O2',
+                        'VMO2': 'Virgin Media O2',
+                        'Vodafone': 'Vodafone',
+                        'Vodafone Group': 'Vodafone',
+                        'BT': 'BT',
+                        'BT Group': 'BT',
+                        'Freshwave': 'Freshwave',
+                        'euNetworks': 'euNetworks',
+                        'Boldyn Networks': 'Boldyn Networks',
+                        'Wireless Infrastructure Group': 'WIG',
+                        'IQGeo': 'IQGeo',
+                        'Vyntelligence': 'Vyntelligence',
+                        'Microsoft': 'Microsoft',
+                        'Azure': 'Microsoft Azure',
+                        'ServiceNow': 'ServiceNow',
+                        'EE': 'EE',
+                        'Three': 'Three',
+                        'Sky': 'Sky',
+                        'TalkTalk': 'TalkTalk'
+                    }
+
+                    # Check source field for company name
+                    for key, canonical in company_mapping.items():
+                        if key.lower() in source_name.lower():
+                            companies_found.append(canonical)
+                            break
+
+                    # Also check title for company mentions
+                    for key, canonical in company_mapping.items():
+                        if key.lower() in title.lower() and canonical not in companies_found:
+                            companies_found.append(canonical)
+
                     # Note: increased_scope.csv has descriptive use cases, not standardized codes
                     # We'll keep them as-is since they're manually curated
                     normalized = {
-                        'source': str(row.get('source', 'Manual')),
+                        'source': source_name,
                         'date': self.normalize_date(row.get('date', '')),
-                        'title': str(row.get('title', '')).strip(),
+                        'title': title.strip(),
                         'url': str(row.get('url', '')).strip(),
                         'content': str(row.get('summary', '')),  # Use summary as content
                         'word_count': word_count,
@@ -743,7 +786,7 @@ Example response format:
                         'title_ai_mention_count': int(row.get('title_ai_mention_count', 0)) if pd.notna(row.get('title_ai_mention_count')) else 0,
                         'title_ai_mentions': str(row.get('title_ai_mentions', '')),
                         'summary': str(row.get('summary', '')),
-                        'companies_mentioned': '',  # Will extract from existing data if available
+                        'companies_mentioned': ','.join(companies_found) if companies_found else '',
                         'technologies_foundation_models': '',
                         'technologies_platforms': '',
                         'technologies_infrastructure': '',
