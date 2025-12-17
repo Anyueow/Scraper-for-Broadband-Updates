@@ -7,7 +7,7 @@
 ## 1. MASTER DATASET: All Articles with AI Analysis
 
 **What it is:** Every article analyzed (1,826 total), with 77 containing AI mentions
-
+{Ananya - Need to improve & add more articles here}
 **Where it lives:**
 ```
 02_analysis/pipelines/unified_ai_analysis_enhanced.csv
@@ -61,6 +61,7 @@
 **What it means:** Use this to quote specific companies and their AI impact. Higher credibility = more trustworthy claims. Example: "Virgin Media made 7 ROI claims about AI with an average credibility of 78/100, primarily focused on time savings."
 
 ### 2B. Build vs Buy Strategy
+{Ananya - Need to improve pipeline & debug why its only picking up one}
 
 **What it is:** Are companies building AI in-house or buying from vendors?
 
@@ -78,6 +79,7 @@
 ---
 
 ## 3. TECHNOLOGY LANDSCAPE: What AI Tech is Being Used
+{Ananya - Need to improve & add more articles here}
 
 ### 3A. Technology Mentions
 
@@ -110,6 +112,7 @@
 ### 3B. Vendor Market Share
 
 **What it is:** Which AI vendors are mentioned most in UK telco articles
+{Ananya - Need to improve detection logic}
 
 **Where it lives:**
 ```
@@ -182,6 +185,7 @@
 ---
 
 ## 5. VISUALIZATIONS: Charts for Your Article
+{Ananya - Need to improve for actual SM posts}
 
 **Where they live:**
 ```
@@ -282,39 +286,9 @@ big firm analysis/big_firm_unified_analysis.csv
 
 ---
 
-## 8. ARTICLE ANGLE SUGGESTIONS
 
-Based on the data, here are story angles:
 
-### Angle 1: "UK Telcos Are Buying AI, Not Building It"
-**Data points:**
-- 100% buy strategy (build_vs_buy_analysis.csv)
-- Top vendors: Vyntelligence, NICE CXone Mpower (vendor_market_share.csv)
-- Quote: "BT has made 6 ROI claims about AI with 68/100 credibility, all using external vendors"
-
-### Angle 2: "Customer Support Leading UK Telco AI Adoption"
-**Data points:**
-- Customer support has 6 ROI claims with 79.2/100 credibility (roi_by_use_case.csv)
-- Technologies: Chatbots, NLP, automation (technology_mentions.csv)
-- Companies: Virgin Media O2, BT, TalkTalk all focusing here (roi_by_company.csv)
-
-### Angle 3: "Infrastructure Providers Racing Ahead on AI"
-**Data points:**
-- Colt: 3 ROI claims about AI-ready networks (roi_by_company.csv)
-- Zayo: 2 claims about AI-driven fiber expansion (roi_by_company.csv)
-- Freshwave: 3 claims about 5G + AI for agritech (roi_by_company.csv)
-- Use unified_ai_analysis_enhanced.csv filtered by companies_mentioned = "Colt" or "Zayo"
-
-### Angle 4: "UK Telco AI Claims Lack Hard Numbers"
-**Data points:**
-- 50 ROI claims total, only 1 with monetary amount (roi_impact_analysis.csv)
-- 0 claims with percentage metrics (roi_impact_analysis.csv)
-- Average credibility 68.9/100 (moderate confidence)
-- Quote: "Most AI claims are qualitative, suggesting early-stage adoption where proven ROI is still elusive"
-
----
-
-## 9. QUICK QUERIES FOR SPECIFIC QUESTIONS
+## 8. QUICK QUERIES FOR SPECIFIC QUESTIONS
 
 ### "Which companies are most active in AI?"
 ```
@@ -360,19 +334,6 @@ Check: credibility_score to validate trustworthiness
 
 ---
 
-## 10. CONTACT FOR QUESTIONS
-
-**Data Pipeline Created By:** Claude (Anthropic AI)
-**Run Date:** December 17, 2025
-**Total Articles Processed:** 1,826
-**AI Articles Found:** 77 (4.2%)
-**Analysis Methodology:** LLM-based extraction using Ollama (gpt-oss:20b-cloud model)
-
-**Note:** All credibility scores are algorithmically calculated based on:
-- Source reliability (ISPreview, company press releases, industry publications)
-- Specificity (quantitative claims score higher than qualitative)
-- Sentiment analysis (positive sentiment = higher score)
-- Use case confidence (well-defined use cases = higher score)
 
 ---
 
