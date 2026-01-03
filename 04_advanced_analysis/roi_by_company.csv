@@ -1,4 +1,0 @@
-company,total_roi_claims,claims_with_percentage,claims_with_amount,avg_credibility,max_credibility,cost_reduction_claims,revenue_growth_claims,time_savings_claims,customer_impact_claims,primary_roi_type,most_common_use_case
-Octaplus,1,0,0,85.0,85,0,0,0,1,customer_impact,customer_support_experience
-Roc Technologies,1,0,0,75.0,75,0,0,1,0,time_savings,other
-Vorboss,1,0,0,75.0,75,0,0,1,0,time_savings,other

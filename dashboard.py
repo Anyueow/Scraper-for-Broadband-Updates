@@ -44,11 +44,20 @@ st.markdown("""
 @st.cache_data
 def load_ai_articles():
     """Load cleaned AI articles data."""
-    csv_path = "output/ai_articles_updated.csv"
+    # Try new enhanced pipeline output first
+    csv_path = "02_analysis/pipelines/unified_ai_analysis_enhanced.csv"
     if not os.path.exists(csv_path):
-        return None
+        # Fallback to old location
+        csv_path = "output/ai_articles_updated.csv"
+        if not os.path.exists(csv_path):
+            return None
 
     df = pd.read_csv(csv_path)
+
+    # Filter to only AI articles (ai_mention_count > 0)
+    if 'ai_mention_count' in df.columns:
+        df = df[df['ai_mention_count'] > 0].copy()
+
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df['year_month'] = df['date'].dt.to_period('M').astype(str)
 
@@ -71,11 +80,58 @@ def load_company_matrix():
 @st.cache_data
 def load_company_size_data():
     """Load company size and AI activity scores."""
-    csv_path = "output/company_size_activity_scores.csv"
+    # Try company_analysis_complete.csv first (new format)
+    csv_path = "03_processed_data/company_analysis_complete.csv"
     if not os.path.exists(csv_path):
-        return None
+        # Try new build vs buy analysis
+        csv_path = "03_processed_data/build_vs_buy_analysis.csv"
+        if not os.path.exists(csv_path):
+            # Fallback to old location
+            csv_path = "output/company_size_activity_scores.csv"
+            if not os.path.exists(csv_path):
+                return None
 
     df = pd.read_csv(csv_path)
+    
+    # If we loaded company_analysis_complete.csv, calculate scores
+    if 'ai_articles_count' in df.columns and 'revenue_gbp_billions' in df.columns:
+        # Load use case matrix to calculate AI activity score
+        matrix_path = "company_use_case_matrix_binary_sorted.csv"
+        if os.path.exists(matrix_path):
+            matrix_df = pd.read_csv(matrix_path, index_col=0)
+            # Calculate AI activity score (number of categories with activity)
+            ai_activity_scores = {}
+            for company in df['company']:
+                if company in matrix_df.index:
+                    # Count number of categories where company has activity (value = 1)
+                    activity_count = matrix_df.loc[company].sum()
+                    ai_activity_scores[company] = activity_count
+                else:
+                    # If company not in matrix, use 0 or ai_articles_count as proxy
+                    ai_activity_scores[company] = 0
+            
+            df['ai_activity_score'] = df['company'].map(ai_activity_scores).fillna(0)
+        else:
+            # Fallback: use ai_articles_count as proxy (normalized)
+            df['ai_activity_score'] = df['ai_articles_count'].fillna(0)
+        
+        # Calculate size_score from revenue and employees (normalized 0-100)
+        # Normalize revenue (0-250B range) and employees (0-250K range)
+        max_revenue = df['revenue_gbp_billions'].max()
+        max_employees = df['employees'].max()
+        
+        # Weight: 60% revenue, 40% employees
+        revenue_score = (df['revenue_gbp_billions'].fillna(0) / max_revenue * 100) * 0.6 if max_revenue > 0 else 0
+        employee_score = (df['employees'].fillna(0) / max_employees * 100) * 0.4 if max_employees > 0 else 0
+        
+        df['size_score'] = revenue_score + employee_score
+        
+        # Ensure we have the required columns
+        if 'revenue_gbp_billions' not in df.columns:
+            df['revenue_gbp_billions'] = 0
+        if 'employees' not in df.columns:
+            df['employees'] = 0
+    
     return df
 
 def create_binary_matrix_chart(matrix_df):
@@ -180,8 +236,22 @@ def create_company_bar_chart(df):
     if df is None or len(df) == 0:
         return None
 
-    # Count companies (excluding unknowns)
-    company_counts = df[df['company'].notna()]['company'].value_counts().reset_index()
+    # Use 'source' column for company data (enhanced CSV structure)
+    # Filter to actual company names (not news sources)
+    company_names = ['BT', 'VMO2', 'Vodafone', 'Sky', 'TalkTalk', 'Glide', 'Zen',
+                     'Utility Warehouse', 'Cuckoo', 'YouFibre / Brsk', 'Openreach',
+                     'CityFibre', 'Netomnia', 'nexfibre', 'Hyperoptic', 'Community Fibre',
+                     'FullFibre', 'Gigaclear', 'APFN', 'ITS', 'Virgin Media O2', 'EE',
+                     'Colt', 'Neos Networks', 'Freshwave', 'Colt Technology Services']
+
+    company_df = df[df['source'].isin(company_names)]
+
+    if len(company_df) == 0:
+        # If no company filter matches, just show top sources
+        company_counts = df['source'].value_counts().reset_index()
+    else:
+        company_counts = company_df['source'].value_counts().reset_index()
+
     company_counts.columns = ['Company', 'Count']
 
     # Top 15 companies
@@ -216,9 +286,47 @@ def create_company_size_activity_matrix(size_data_df):
     if size_data_df is None or len(size_data_df) == 0:
         return None
 
-    # Use the loaded CSV data directly
-    plot_df = size_data_df[['company', 'size_score', 'ai_activity_score', 'revenue_gbp_billions', 'employees']].copy()
-    plot_df.columns = ['Company', 'Size', 'AI Activity', 'Revenue', 'Employees']
+    # Check if we have the expected columns
+    expected_cols = ['company', 'size_score', 'ai_activity_score', 'revenue_gbp_billions', 'employees']
+
+    # If we have build_vs_buy data instead, adapt it
+    if 'total_articles' in size_data_df.columns and 'size_score' not in size_data_df.columns:
+        # Create a simplified version from build_vs_buy data
+        plot_df = pd.DataFrame({
+            'Company': size_data_df['company'],
+            'AI Activity': size_data_df['total_articles'],
+            'Size': 50,  # Placeholder - all medium size
+            'Revenue': 0,  # Placeholder
+            'Employees': 0  # Placeholder
+        })
+    else:
+        # Use the loaded CSV data directly - check which columns exist
+        required_cols = ['company']
+        optional_cols = ['size_score', 'ai_activity_score', 'revenue_gbp_billions', 'employees']
+        
+        # Build column list with available columns
+        cols_to_use = [col for col in required_cols + optional_cols if col in size_data_df.columns]
+        plot_df = size_data_df[cols_to_use].copy()
+        
+        # Rename columns
+        if 'company' in plot_df.columns:
+            plot_df.rename(columns={'company': 'Company'}, inplace=True)
+        if 'size_score' in plot_df.columns:
+            plot_df.rename(columns={'size_score': 'Size'}, inplace=True)
+        else:
+            plot_df['Size'] = 50  # Default if missing
+        if 'ai_activity_score' in plot_df.columns:
+            plot_df.rename(columns={'ai_activity_score': 'AI Activity'}, inplace=True)
+        else:
+            plot_df['AI Activity'] = 0  # Default if missing
+        if 'revenue_gbp_billions' in plot_df.columns:
+            plot_df.rename(columns={'revenue_gbp_billions': 'Revenue'}, inplace=True)
+        else:
+            plot_df['Revenue'] = 0  # Default if missing
+        if 'employees' in plot_df.columns:
+            plot_df.rename(columns={'employees': 'Employees'}, inplace=True)
+        else:
+            plot_df['Employees'] = 0  # Default if missing
 
     # Add size label
     plot_df['Size Label'] = plot_df['Size'].apply(
@@ -228,6 +336,7 @@ def create_company_size_activity_matrix(size_data_df):
     # Calculate quadrants
     median_activity = plot_df['AI Activity'].median()
     median_size = plot_df['Size'].median()
+    max_activity = plot_df['AI Activity'].max()
 
     # Create scatter plot
     fig = go.Figure()
@@ -238,7 +347,7 @@ def create_company_size_activity_matrix(size_data_df):
                   fillcolor="rgba(200, 200, 200, 0.1)", line_width=0,
                   layer="below")
     fig.add_shape(type="rect",
-                  x0=median_activity, y0=median_size, x1=6, y1=100,
+                  x0=median_activity, y0=median_size, x1=max_activity + 0.5, y1=100,
                   fillcolor="rgba(16, 185, 129, 0.1)", line_width=0,
                   layer="below")
     fig.add_shape(type="rect",
@@ -246,7 +355,7 @@ def create_company_size_activity_matrix(size_data_df):
                   fillcolor="rgba(239, 68, 68, 0.1)", line_width=0,
                   layer="below")
     fig.add_shape(type="rect",
-                  x0=median_activity, y0=0, x1=6, y1=median_size,
+                  x0=median_activity, y0=0, x1=max_activity + 0.5, y1=median_size,
                   fillcolor="rgba(251, 191, 36, 0.1)", line_width=0,
                   layer="below")
 
@@ -277,15 +386,18 @@ def create_company_size_activity_matrix(size_data_df):
     fig.add_annotation(x=median_activity/2, y=95,
                       text="Large, Low Activity<br>(Opportunity)",
                       showarrow=False, font=dict(size=11, color="gray"))
-    fig.add_annotation(x=(median_activity + 6)/2, y=95,
+    fig.add_annotation(x=(median_activity + max_activity + 0.5)/2, y=95,
                       text="Large, High Activity<br>(Leaders)",
                       showarrow=False, font=dict(size=11, color="green"))
     fig.add_annotation(x=median_activity/2, y=5,
                       text="Small, Low Activity<br>(Laggards)",
                       showarrow=False, font=dict(size=11, color="red"))
-    fig.add_annotation(x=(median_activity + 6)/2, y=5,
+    fig.add_annotation(x=(median_activity + max_activity + 0.5)/2, y=5,
                       text="Small, High Activity<br>(Ambitious)",
                       showarrow=False, font=dict(size=11, color="orange"))
+
+    # Set x-axis range based on actual data
+    x_max = max(max_activity + 0.5, 6.5)  # At least show up to 6, or more if needed
 
     fig.update_layout(
         title="Company Positioning: Size vs AI Public Activity",
@@ -296,7 +408,7 @@ def create_company_size_activity_matrix(size_data_df):
         margin=dict(l=80, r=80, t=80, b=80),
         font=dict(size=12, family="Arial, sans-serif"),
         showlegend=False,
-        xaxis=dict(range=[-0.5, 6.5], dtick=1),
+        xaxis=dict(range=[-0.5, x_max], dtick=1),
         yaxis=dict(range=[0, 105])
     )
 
@@ -320,7 +432,13 @@ def main():
     col1, col2, col3, col4 = st.columns(4)
 
     total_articles = len(df)
-    total_companies = df['company'].nunique() if 'company' in df.columns else 0
+    # Count unique companies from source column (for company-sourced articles)
+    company_names = ['BT', 'VMO2', 'Vodafone', 'Sky', 'TalkTalk', 'Glide', 'Zen',
+                     'Utility Warehouse', 'Cuckoo', 'YouFibre / Brsk', 'Openreach',
+                     'CityFibre', 'Netomnia', 'nexfibre', 'Hyperoptic', 'Community Fibre',
+                     'FullFibre', 'Gigaclear', 'APFN', 'ITS', 'Virgin Media O2', 'EE',
+                     'Colt', 'Neos Networks', 'Freshwave', 'Colt Technology Services']
+    total_companies = df[df['source'].isin(company_names)]['source'].nunique() if 'source' in df.columns else 0
     total_use_cases = df['primary_use_case'].nunique() if 'primary_use_case' in df.columns else 0
 
     with col1:
@@ -456,13 +574,19 @@ def main():
             df = df[(df['date'] >= pd.Timestamp(date_range[0])) &
                    (df['date'] <= pd.Timestamp(date_range[1]))]
 
-    # Company filter
-    if 'company' in df.columns:
-        companies = ['All'] + sorted(df['company'].dropna().unique().tolist())
+    # Company filter (use source column for enhanced CSV)
+    if 'source' in df.columns:
+        # Get unique company names from source column
+        company_names_filter = ['BT', 'VMO2', 'Vodafone', 'Sky', 'TalkTalk', 'Glide', 'Zen',
+                               'Utility Warehouse', 'Cuckoo', 'YouFibre / Brsk', 'Openreach',
+                               'CityFibre', 'Netomnia', 'nexfibre', 'Hyperoptic', 'Community Fibre',
+                               'FullFibre', 'Gigaclear', 'APFN', 'ITS', 'Virgin Media O2', 'EE',
+                               'Colt', 'Neos Networks', 'Freshwave', 'Colt Technology Services']
+        companies = ['All'] + sorted([c for c in df['source'].unique() if c in company_names_filter])
         selected_company = st.sidebar.selectbox("Company", companies)
 
         if selected_company != 'All':
-            df = df[df['company'] == selected_company]
+            df = df[df['source'] == selected_company]
 
     # Use case filter
     if 'primary_use_case' in df.columns:

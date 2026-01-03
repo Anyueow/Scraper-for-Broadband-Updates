@@ -1,0 +1,26 @@
+company,business_model,revenue_gbp_billions,employees,headquarters,company_size
+BT,Incumbent Telco,20.7,98000,"London, UK",Large
+Virgin Media O2,Mobile & Cable Operator,11.5,15000,"London, UK",Large
+VMO2,Mobile & Cable Operator,11.5,15000,"London, UK",Large
+Vodafone,Mobile Operator,9.7,13000,"Newbury, UK",Large
+Sky,Broadband & Media,13.8,31000,"Isleworth, UK",Large
+TalkTalk,ISP,1.4,2100,"Salford, UK",Medium
+EE,Mobile Operator (BT),6.2,11000,"Hatfield, UK",Large
+Openreach,Wholesale (BT),5.3,32000,"London, UK",Large
+CityFibre,Alt-net / Wholesale,0.5,3000,"London, UK",Medium
+Gigaclear,Rural Alt-net,0.05,400,"Abingdon, UK",Small
+Hyperoptic,Urban Alt-net,0.1,300,"London, UK",Small
+Community Fibre,Urban Alt-net,0.03,200,"London, UK",Micro
+Netomnia,Alt-net / Wholesale,0.02,150,"Wakefield, UK",Micro
+nexfibre,Alt-net / Wholesale,0.01,100,"London, UK",Micro
+FullFibre,Rural Alt-net,0.01,50,UK,Micro
+YouFibre / Brsk,Alt-net,0.01,100,"York, UK",Micro
+Zen,ISP,0.15,400,"Rochdale, UK",Small
+Glide,Regional ISP,0.01,50,"Lincoln, UK",Micro
+Utility Warehouse,Multi-utility ISP,1.0,1000,"London, UK",Medium
+Cuckoo,Digital ISP,0.005,30,UK,Micro
+Colt,Enterprise / Wholesale,1.0,5000,"London, UK",Medium
+Neos Networks,Wholesale,0.2,400,"Reading, UK",Small
+Freshwave,Wholesale,0.05,100,"Wetherby, UK",Small
+euNetworks,Pan-European Wholesale,0.3,300,"London, UK",Small
+Zayo,Global Wholesale,2.6,7000,"Boulder, CO (US)",Medium

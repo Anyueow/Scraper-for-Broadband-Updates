@@ -1,0 +1,45 @@
+company,ai_articles_count,dominant_use_case,business_model,revenue_gbp_billions,employees,headquarters,company_size
+BT,38,internal_productivity_workforce,Incumbent Telco,20.7,98000.0,"London, UK",Large
+Vodafone,35,network_optimization_performance,Mobile Operator,9.7,13000.0,"Newbury, UK",Large
+Virgin Media O2,24,internal_productivity_workforce,Mobile & Cable Operator,11.5,15000.0,"London, UK",Large
+EE,13,internal_productivity_workforce,Mobile Operator (BT),6.2,11000.0,"Hatfield, UK",Large
+VMO2,12,network_optimization_performance,Mobile & Cable Operator,11.5,15000.0,"London, UK",Large
+TalkTalk,10,customer_support_experience,ISP,1.4,2100.0,"Salford, UK",Medium
+Sky,9,customer_support_experience,Broadband & Media,13.8,31000.0,"Isleworth, UK",Large
+Colt,6,internal_productivity_workforce,Enterprise / Wholesale,1.0,5000.0,"London, UK",Medium
+Zayo,6,internal_productivity_workforce,Global Wholesale,2.6,7000.0,"Boulder, CO (US)",Medium
+Gigaclear,5,internal_productivity_workforce,Rural Alt-net,0.05,400.0,"Abingdon, UK",Small
+CityFibre,5,customer_support_experience,Alt-net / Wholesale,0.5,3000.0,"London, UK",Medium
+Freshwave,5,internal_productivity_workforce,Wholesale,0.05,100.0,"Wetherby, UK",Small
+Colt Technology Services,4,internal_productivity_workforce,Enterprise / Wholesale,3.8,6000.0,"London, UK",Medium
+Openreach,4,customer_support_experience,Wholesale (BT),5.3,32000.0,"London, UK",Large
+ServiceNow,3,internal_productivity_workforce,SaaS / Cloud,8.34,23000.0,"Santa Clara, CA (US)",Large
+Community Fibre,3,customer_support_experience,Urban Alt-net,0.03,200.0,"London, UK",Micro
+euNetworks,2,internal_productivity_workforce,Pan-European Wholesale,0.3,300.0,"London, UK",Small
+O2,2,security_fraud_threat,Mobile Operator (VMO2),5.5,7000.0,"Slough, UK",Medium
+Virgin Media,2,security_fraud_threat,Broadband & Media (VMO2),6.0,15932.0,"Reading, UK",Large
+Utility Warehouse,2,internal_productivity_workforce,Multi-utility ISP,1.0,1000.0,"London, UK",Medium
+Neos Networks,2,internal_productivity_workforce,Wholesale,0.2,400.0,"Reading, UK",Small
+Vyntelligence,2,internal_productivity_workforce,AI SaaS (Video),0.001,35.0,"London, UK",Micro
+IQGeo,2,internal_productivity_workforce,Geospatial SaaS,0.04,102.0,"Cambridge, UK",Micro
+YouFibre / Brsk,2,internal_productivity_workforce,Alt-net,0.01,100.0,"York, UK",Micro
+WIG,1,internal_productivity_workforce,Neutral Host Infrastructure,0.02,50.0,"London, UK",Micro
+Cornerstone,1,network_planning_deployment,Tower Infrastructure,0.4,110.0,"Reading, UK",Micro
+Vantage Towers,1,network_planning_deployment,Tower Infrastructure,1.08,456.0,"Dusseldorf, Germany",Small
+Daisy Group,1,internal_productivity_workforce,B2B Telecoms / Managed Services,1.0,1862.0,"Nelson, UK",Medium
+O2 Daisy,1,internal_productivity_workforce,B2B Telecoms JV,0.5,1800.0,"Nelson, UK",Medium
+Ericsson,1,network_optimization_performance,Telecom Equipment,17.8,89898.0,"Stockholm, Sweden",Large
+Liberty Global,1,internal_productivity_workforce,International Telco,2.73,28720.0,"London / Denver",Large
+Telefonica,1,internal_productivity_workforce,Global Telco,34.3,100000.0,"Madrid, Spain",Large
+Ogi,1,internal_productivity_workforce,Regional ISP,0.01,100.0,"Cardiff, Wales",Micro
+Glide,1,internal_productivity_workforce,Regional ISP,0.01,50.0,"Lincoln, UK",Micro
+Octaplus,1,customer_support_experience,ISP,0.005,30.0,"London, UK",Micro
+Vorboss,1,network_optimization_performance,Business ISP,0.02,350.0,"London, UK",Small
+Hyperoptic,1,customer_support_experience,Urban Alt-net,0.1,300.0,"London, UK",Small
+APFN,1,internal_productivity_workforce,Wholesale Fibre (AllPoints),0.05,500.0,"Reading, UK",Small
+FullFibre,1,network_optimization_performance,Rural Alt-net,0.01,50.0,UK,Micro
+nexfibre,1,internal_productivity_workforce,Alt-net / Wholesale,0.01,100.0,"London, UK",Micro
+Netomnia,1,customer_support_experience,Alt-net / Wholesale,0.02,150.0,"Wakefield, UK",Micro
+Zen,1,customer_support_experience,ISP,0.15,400.0,"Rochdale, UK",Small
+Cuckoo,1,internal_productivity_workforce,Digital ISP,0.005,30.0,UK,Micro
+ITS,1,internal_productivity_workforce,Wholesale / ISP,0.02,100.0,"Warrington, UK",Micro

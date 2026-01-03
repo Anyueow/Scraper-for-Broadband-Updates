@@ -230,28 +230,43 @@
   "build_vs_buy_indicators": {
     "build_internal": [
       "in-house development",
+      "in-house",
       "custom-built",
       "proprietary",
       "internally developed",
       "built by our team",
       "developed internally",
-      "home-grown"
+      "home-grown",
+      "own ai",
+      "own platform",
+      "built their own"
     ],
     "buy_external": [
       "partnered with",
+      "partners with",
+      "partnership with",
       "powered by",
-      "using [Vendor]",
-      "deployed [Platform]",
-      "leveraging [Service]",
+      "using",
+      "deployed",
+      "leveraging",
       "integrated with",
-      "procured from"
+      "procured from",
+      "adopted",
+      "adopts",
+      "selected",
+      "selects",
+      "chosen",
+      "implementing"
     ],
     "hybrid": [
       "customized",
+      "customised",
       "tailored",
       "extended",
       "built on top of",
-      "integrated and extended"
+      "integrated and extended",
+      "adapted",
+      "modified"
     ]
   },
 

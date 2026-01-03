@@ -1,18 +1,14 @@
-company,Network Planning,Network Opt,Predictive Maint,Customer Support,Security/Fraud,Internal Ops
-TOTAL,3,6,2,14,4,10
-VMO2,0,1,1,1,1,1
-Other/Unknown,1,1,0,1,1,1
-Vodafone,0,1,1,1,0,1
-BT,0,1,0,1,1,1
-CityFibre,1,0,0,1,0,1
-Gigaclear,1,0,0,0,1,1
-Openreach,0,0,0,1,0,1
-Sky,0,0,0,1,0,1
-Community Fibre,0,1,0,1,0,0
-YouFibre / Brsk,0,0,0,1,0,1
-TalkTalk,0,0,0,1,0,1
-Utility Warehouse,0,0,0,1,0,0
-FullFibre,0,1,0,0,0,0
-Hyperoptic,0,0,0,1,0,0
-Netomnia,0,0,0,1,0,0
-Zen,0,0,0,1,0,0
+company,customer_support_experience,internal_productivity_workforce,network_optimization_performance,network_planning_deployment,security_fraud_threat
+Virgin Media O2,1,0,1,1,1
+BT,1,0,0,0,1
+Vodafone,0,0,1,1,0
+Cornerstone,0,0,0,1,0
+Daisy Group,0,0,0,0,1
+EE,1,0,0,0,0
+Ericsson,0,0,1,0,0
+Gigaclear,0,1,0,0,0
+O2,0,0,0,0,1
+Octaplus,1,0,0,0,0
+TalkTalk,1,0,0,0,0
+Vantage Towers,0,0,0,1,0
+Virgin Media,0,0,0,0,1

@@ -309,17 +309,19 @@
     "has_ai_content": true,
     "ai_mentions": [
       "AI",
-      "AI-driven"
+      "AI-driven wireless capability"
     ],
-    "ai_mention_count": 1,
+    "ai_mention_count": 2,
     "primary_use_case": "network_optimization_performance",
-    "primary_use_case_confidence": 0.8,
+    "primary_use_case_confidence": 0.7,
     "ai_use_cases": [
       "network_optimization_performance"
     ],
     "sentiment": "positive",
-    "summary": "The City of London Corporation has selected Roc Technologies to deliver a new end‑to‑end network that includes AI‑driven wireless capabilities. The AI is used to optimise wireless performance and ensure high‑availability connectivity for public services, improving network efficiency across the city.",
-    "companies_mentioned": [],
+    "summary": "The City of London Corporation has selected Roc Technologies to deliver an end‑to‑end networking solution that includes AI‑driven wireless capability. The AI optimises wireless network performance for public services, enhancing connectivity and reliability. This marks a UK‑first enterprise SASE rollout and leverages Vorboss’ 100Gbps fibre network.",
+    "companies_mentioned": [
+      "Vorboss"
+    ],
     "technologies": {
       "foundation_models": [],
       "platforms": [],
@@ -450,22 +452,16 @@
     "has_ai_content": true,
     "ai_mentions": [
       "AI",
-      "Artificial Intelligence",
-      "Ask Octa AI",
-      "chatbot",
-      "virtual assistant",
-      "customer support",
-      "support system",
-      "automation"
+      "Artificial Intelligence"
     ],
-    "ai_mention_count": 8,
+    "ai_mention_count": 3,
     "primary_use_case": "customer_support_experience",
     "primary_use_case_confidence": 0.95,
     "ai_use_cases": [
       "customer_support_experience"
     ],
     "sentiment": "positive",
-    "summary": "Octaplus has launched an AI‑powered support system called Ask Octa AI, a chatbot/virtual assistant that handles customer queries and troubleshooting, aiming to improve the customer experience and reduce support workload.",
+    "summary": "Octaplus is piloting an AI‑powered support system called Ask Octa AI with a select group of existing customers. The system functions as a virtual assistant to handle customer queries and support tasks, aiming to improve service efficiency and customer experience. This early‑stage rollout showcases Octaplus’s commitment to leveraging AI for better customer engagement.",
     "companies_mentioned": [
       "Octaplus"
     ],
@@ -619,12 +615,12 @@
     ],
     "ai_mention_count": 1,
     "primary_use_case": "security_fraud_threat",
-    "primary_use_case_confidence": 0.8,
+    "primary_use_case_confidence": 0.95,
     "ai_use_cases": [
       "security_fraud_threat"
     ],
     "sentiment": "neutral",
-    "summary": "Ofcom is deploying an unidentified third‑party monitoring tool that appears to use AI to track VPN usage across the UK. The system aims to detect and deter circumvention of the Online Safety Act’s censorship provisions, thereby enforcing government policy on internet content. This represents a security-focused application of AI in regulatory monitoring.",
+    "summary": "Ofcom is deploying an unidentified third‑party AI‑enabled monitoring tool to track VPN usage and curb circumvention of the Online Safety Act. The AI system scans traffic patterns to detect VPN activity, helping regulators enforce censorship rules and protect online safety.",
     "companies_mentioned": [],
     "technologies": {
       "foundation_models": [],
@@ -1809,16 +1805,17 @@
   "https://www.ispreview.co.uk/index.php/2025/10/isp-bt-to-launch-new-ai-anti-virus-service-for-small-uk-businesses.html": {
     "has_ai_content": true,
     "ai_mentions": [
-      "AI"
+      "AI",
+      "AI-powered"
     ],
-    "ai_mention_count": 1,
+    "ai_mention_count": 2,
     "primary_use_case": "security_fraud_threat",
     "primary_use_case_confidence": 0.95,
     "ai_use_cases": [
       "security_fraud_threat"
     ],
     "sentiment": "positive",
-    "summary": "BT has partnered with CrowdStrike to launch an AI‑powered antivirus service called Business Antivirus Detect and Respond (BADR) for small UK businesses. The solution uses AI to proactively detect and respond to threats before they become breaches, enhancing security for its small‑business customers.",
+    "summary": "BT partners with CrowdStrike to launch an AI‑powered antivirus service called Business Antivirus Detect and Respond (BADR) for small UK businesses, aiming to proactively detect and stop threats before they become breaches, thereby strengthening cybersecurity for its customers.",
     "companies_mentioned": [
       "BT"
     ],
@@ -2952,20 +2949,29 @@
     }
   },
   "https://www.ispreview.co.uk/index.php/2025/10/university-of-portsmouth-team-get-772k-to-develop-subsea-cable-surveillance.html": {
-    "has_ai_content": false,
-    "ai_mentions": [],
-    "ai_mention_count": 0,
-    "primary_use_case": null,
-    "primary_use_case_confidence": 0.0,
-    "ai_use_cases": [],
-    "sentiment": "not_applicable",
-    "summary": "N/A",
+    "has_ai_content": true,
+    "ai_mentions": [
+      "AI",
+      "machine learning",
+      "anomaly detection",
+      "predictive analytics"
+    ],
+    "ai_mention_count": 4,
+    "primary_use_case": "predictive_maintenance_analytics",
+    "primary_use_case_confidence": 0.9,
+    "ai_use_cases": [
+      "predictive_maintenance_analytics"
+    ],
+    "sentiment": "positive",
+    "summary": "The University of Portsmouth has secured £772k to develop an AI‑driven surveillance algorithm that monitors subsea cables, detecting damage early and guiding repair efforts. By applying anomaly detection and predictive analytics, the system aims to reduce cable failures and protect critical fibre‑optic and energy infrastructure. This initiative supports the resilience of the UK’s broadband network.",
     "companies_mentioned": [],
     "technologies": {
       "foundation_models": [],
       "platforms": [],
       "infrastructure": [],
-      "techniques": []
+      "techniques": [
+        "anomaly detection"
+      ]
     }
   },
   "https://www.ispreview.co.uk/index.php/2025/10/freelys-uk-broadband-tv-streaming-service-to-get-10-new-channels.html": {
@@ -4011,12 +4017,10 @@
       "AI"
     ],
     "ai_mention_count": 1,
-    "primary_use_case": "other",
-    "primary_use_case_confidence": 0.6,
-    "ai_use_cases": [
-      "other"
-    ],
-    "sentiment": "neutral",
+    "primary_use_case": "internal_productivity_workforce",
+    "primary_use_case_confidence": 0.0,
+    "ai_use_cases": [],
+    "sentiment": "not_applicable",
     "summary": "N/A",
     "companies_mentioned": [],
     "technologies": {
@@ -4312,7 +4316,7 @@
       "network_planning_deployment"
     ],
     "sentiment": "positive",
-    "summary": "Cornerstone has adopted Vyntelligence’s Agentic Video Intelligence AI platform to accelerate the deployment of new masts across the UK, reducing rollout time and cutting costs. The AI-driven video analysis helps identify optimal sites and streamline construction, improving efficiency for the network operator.",
+    "summary": "Cornerstone has adopted Vyntelligence’s Agentic Video Intelligence AI platform to accelerate the deployment of new mobile masts, reducing costs and speeding up network roll‑outs across the UK.",
     "companies_mentioned": [
       "Cornerstone",
       "Virgin Media O2",
@@ -4322,12 +4326,11 @@
     "technologies": {
       "foundation_models": [],
       "platforms": [
-        "Vyntelligence"
+        "Vyntelligence",
+        "Agentic Video Intelligence"
       ],
       "infrastructure": [],
-      "techniques": [
-        "computer vision"
-      ]
+      "techniques": []
     }
   },
   "https://www.ispreview.co.uk/index.php/2025/09/virgin-media-o2-expand-uk-3g-mobile-switch-off-to-scotland.html": {
@@ -5404,16 +5407,17 @@
   "https://www.ispreview.co.uk/index.php/2025/09/rural-uk-isp-gigaclear-adopts-ai-to-improve-customer-broadband-installs.html": {
     "has_ai_content": true,
     "ai_mentions": [
-      "AI"
+      "AI",
+      "AI video technology"
     ],
     "ai_mention_count": 1,
     "primary_use_case": "customer_support_experience",
-    "primary_use_case_confidence": 0.8,
+    "primary_use_case_confidence": 0.95,
     "ai_use_cases": [
       "customer_support_experience"
     ],
     "sentiment": "positive",
-    "summary": "Gigaclear has adopted Vyntelligence's AI video technology to streamline customer installation journeys, reducing unnecessary work and improving the overall customer experience.",
+    "summary": "Gigaclear has adopted Vyntelligence’s AI video technology to streamline broadband installation journeys, using computer vision to identify and eliminate unnecessary work during the process. This improves the customer experience by reducing delays and errors, making rural fibre rollouts more efficient. As the first UK retail fibre provider to deploy such technology, it showcases a commitment to innovative AI solutions in rural broadband delivery.",
     "companies_mentioned": [
       "Gigaclear"
     ],
@@ -5423,7 +5427,9 @@
         "Vyntelligence"
       ],
       "infrastructure": [],
-      "techniques": []
+      "techniques": [
+        "computer vision"
+      ]
     }
   },
   "https://www.ispreview.co.uk/index.php/2025/09/openreach-sees-uk-full-fibre-broadband-traffic-grow-35-percent-in-h1-2025.html": {
@@ -7326,7 +7332,7 @@
       "network_optimization_performance"
     ],
     "sentiment": "positive",
-    "summary": "Ulster University researchers use AI to develop a new massive MIMO (ma‑MIMO) technology for 6G, aiming to make future mobile broadband networks faster, smarter, and more energy‑efficient. The AI‑driven design enhances signal processing and antenna array efficiency, potentially boosting network performance and reducing power consumption. This advancement could accelerate 6G deployment and improve user experience.",
+    "summary": "Ulster University researchers have used AI to develop a new massive MIMO (ma‑MIMO) technology for future 6G mobile networks, aiming to make them faster, smarter, and far more energy‑efficient. This AI‑driven innovation could accelerate 6G deployment and significantly improve broadband performance across the UK.",
     "companies_mentioned": [],
     "technologies": {
       "foundation_models": [],
@@ -7660,13 +7666,15 @@
   },
   "https://www.ispreview.co.uk/index.php/2025/08/survey-claims-broadband-isps-expect-ai-and-streaming-to-crush-todays-networks.html": {
     "has_ai_content": false,
-    "ai_mentions": [],
-    "ai_mention_count": 0,
-    "primary_use_case": null,
+    "ai_mentions": [
+      "AI"
+    ],
+    "ai_mention_count": 1,
+    "primary_use_case": "internal_productivity_workforce",
     "primary_use_case_confidence": 0.0,
     "ai_use_cases": [],
     "sentiment": "negative",
-    "summary": "N/A",
+    "summary": "A survey of 200 senior telecom decision-makers across the USA, UK, and Australia found that AI and streaming traffic are expected to overwhelm broadband networks within five years. About 80% of respondents anticipate that the demand will crush existing infrastructure, highlighting the need for significant network upgrades.",
     "companies_mentioned": [],
     "technologies": {
       "foundation_models": [],
@@ -8855,14 +8863,15 @@
       "chatbot"
     ],
     "ai_mention_count": 2,
-    "primary_use_case": null,
+    "primary_use_case": "internal_productivity_workforce",
     "primary_use_case_confidence": 0.0,
     "ai_use_cases": [],
     "sentiment": "not_applicable",
     "summary": "N/A",
     "companies_mentioned": [
       "Virgin Media O2",
-      "Daisy Group"
+      "Daisy Group",
+      "O2 Daisy"
     ],
     "technologies": {
       "foundation_models": [],
@@ -9521,8 +9530,7 @@
     "has_ai_content": true,
     "ai_mentions": [
       "AI",
-      "Artificial Intelligence",
-      "Lumi AI"
+      "Artificial Intelligence"
     ],
     "ai_mention_count": 3,
     "primary_use_case": "customer_support_experience",
@@ -9531,7 +9539,7 @@
       "customer_support_experience"
     ],
     "sentiment": "positive",
-    "summary": "Virgin Media O2 has launched Lumi AI, an AI-powered tool designed to enhance customer service by enabling agents to deliver faster, more effective, and personalized support. The system uses AI to streamline interactions and improve response times, aiming to boost customer satisfaction and operational efficiency. This initiative positions VMO2 as a leader in AI-driven customer experience within the UK telecom market.",
+    "summary": "Virgin Media O2 has launched Lumi AI, an artificial intelligence tool designed to enhance customer service by enabling agents to deliver faster, more effective and personalised support. The system aims to streamline interactions and improve overall customer experience.",
     "companies_mentioned": [
       "Virgin Media O2"
     ],
@@ -9818,7 +9826,7 @@
     "has_ai_content": false,
     "ai_mentions": [],
     "ai_mention_count": 0,
-    "primary_use_case": null,
+    "primary_use_case": "internal_productivity_workforce",
     "primary_use_case_confidence": 0.0,
     "ai_use_cases": [],
     "sentiment": "not_applicable",
@@ -11844,30 +11852,28 @@
     "ai_mentions": [
       "AI",
       "AI-powered",
+      "automation",
       "customer service automation platform",
-      "CXone Mpower",
-      "automation"
+      "CXone Mpower"
     ],
-    "ai_mention_count": 5,
+    "ai_mention_count": 4,
     "primary_use_case": "customer_support_experience",
     "primary_use_case_confidence": 0.95,
     "ai_use_cases": [
       "customer_support_experience"
     ],
     "sentiment": "positive",
-    "summary": "TalkTalk has adopted NICE’s CXone Mpower, an AI‑powered customer service automation platform, to enhance its customer support capabilities and move closer to becoming the UK’s most recommended Wi‑Fi provider. The platform automates ticket handling and self‑service interactions, aiming to improve response times and customer satisfaction.",
+    "summary": "TalkTalk has adopted NiCE’s CXone Mpower, an AI‑powered customer service automation platform, to streamline support interactions and enhance the customer experience. The deployment aims to improve response times and reduce manual handling of queries.",
     "companies_mentioned": [
       "TalkTalk"
     ],
     "technologies": {
       "foundation_models": [],
       "platforms": [
-        "NICE CXone Mpower"
+        "CXone Mpower"
       ],
       "infrastructure": [],
-      "techniques": [
-        "automation"
-      ]
+      "techniques": []
     }
   },
   "https://www.ispreview.co.uk/index.php/2025/07/rural-uk-full-fibre-broadband-isp-gigaclear-sees-more-job-cuts.html": {
@@ -19931,24 +19937,24 @@
   "https://www.ispreview.co.uk/index.php/2025/03/o2-uks-ai-flags-50-million-suspected-spam-and-scam-calls-a-month.html": {
     "has_ai_content": true,
     "ai_mentions": [
-      "AI",
       "AI-powered"
     ],
-    "ai_mention_count": 2,
+    "ai_mention_count": 1,
     "primary_use_case": "security_fraud_threat",
     "primary_use_case_confidence": 0.95,
     "ai_use_cases": [
       "security_fraud_threat"
     ],
     "sentiment": "positive",
-    "summary": "O2 (Virgin Media) has deployed Hiya’s AI‑powered Call Defence service to flag scam and spam calls. The system has identified over 150 million suspected fraud calls, rising to more than 50 million per month, helping protect customers from nuisance and fraudulent calls.",
+    "summary": "O2 integrated Hiya’s AI‑powered scam detection service Call Defence, which has flagged over 150 million suspected spam and scam calls, now rising to more than 50 million per month. The system helps protect customers from fraud and nuisance calls.",
     "companies_mentioned": [
-      "Virgin Media O2"
+      "O2",
+      "Virgin Media"
     ],
     "technologies": {
       "foundation_models": [],
       "platforms": [
-        "Hiya Call Defence"
+        "Call Defence"
       ],
       "infrastructure": [],
       "techniques": []
@@ -20428,7 +20434,7 @@
       "network_optimization_performance"
     ],
     "sentiment": "positive",
-    "summary": "Vodafone UK and Ericsson trial AI and ML powered software solutions that cut daily power consumption of 5G radio units by 33%, improving energy efficiency and reducing operational costs. The trials demonstrate how AI can optimize network energy usage in real-world deployments.",
+    "summary": "Vodafone UK and Ericsson trialled three AI‑powered software solutions that cut daily 5G radio unit power consumption by 33%, demonstrating AI’s role in boosting network energy efficiency.",
     "companies_mentioned": [
       "Vodafone",
       "Ericsson"
@@ -20460,18 +20466,19 @@
     }
   },
   "https://www.ispreview.co.uk/index.php/2025/03/virgin-media-o2-invest-700m-into-uk-4g-and-5g-mobile-upgrades-for-2025.html": {
-    "has_ai_content": false,
+    "has_ai_content": true,
     "ai_mentions": [
-      "AI"
+      "AI",
+      "automation"
     ],
-    "ai_mention_count": 1,
-    "primary_use_case": "other",
-    "primary_use_case_confidence": 0.5,
+    "ai_mention_count": 2,
+    "primary_use_case": "network_optimization_performance",
+    "primary_use_case_confidence": 0.6,
     "ai_use_cases": [
-      "other"
+      "network_optimization_performance"
     ],
     "sentiment": "neutral",
-    "summary": "The article reports that O2 (Virgin Media O2) will invest £700m in network upgrades, including increased automation via AI, but does not detail any specific AI applications.",
+    "summary": "Virgin Media O2 is investing £700m to upgrade its 4G and 5G network, leveraging AI‑driven automation to improve coverage and performance. The AI helps streamline network operations, enhancing service quality across the UK. This move supports O2's Mobile Transformation Plan and aims to deliver better connectivity.",
     "companies_mentioned": [
       "Virgin Media O2"
     ],
@@ -21323,12 +21330,12 @@
     ],
     "ai_mention_count": 2,
     "primary_use_case": "network_optimization_performance",
-    "primary_use_case_confidence": 0.6,
+    "primary_use_case_confidence": 0.8,
     "ai_use_cases": [
       "network_optimization_performance"
     ],
     "sentiment": "positive",
-    "summary": "The UK Spectrum Policy Forum recommends that Ofcom adopt AI technologies to improve spectrum management, enabling more efficient allocation and use of the finite wireless radio spectrum. AI would help predict demand, optimize allocation, and reduce interference, supporting the telecom sector's growth.",
+    "summary": "The UK Spectrum Policy Forum study recommends that Ofcom adopt AI technologies to improve the management of the UK’s finite wireless spectrum, aiming to increase efficiency and reduce interference. By leveraging AI-driven analysis, regulators could optimise spectrum allocation and usage across operators.",
     "companies_mentioned": [],
     "technologies": {
       "foundation_models": [],
@@ -21836,7 +21843,7 @@
       "AI"
     ],
     "ai_mention_count": 1,
-    "primary_use_case": null,
+    "primary_use_case": "internal_productivity_workforce",
     "primary_use_case_confidence": 0.0,
     "ai_use_cases": [],
     "sentiment": "not_applicable",
@@ -23997,20 +24004,18 @@
     "has_ai_content": true,
     "ai_mentions": [
       "AI",
-      "Artificial Intelligence",
-      "chatbot"
+      "Artificial Intelligence"
     ],
-    "ai_mention_count": 4,
+    "ai_mention_count": 2,
     "primary_use_case": "security_fraud_threat",
     "primary_use_case_confidence": 0.95,
     "ai_use_cases": [
       "security_fraud_threat"
     ],
     "sentiment": "positive",
-    "summary": "O2 UK has deployed an AI-powered chatbot named Daisy, a human-like \"Granny\", to engage and occupy scam callers in real‑time, diverting them from customers and learning from interactions. The system helps protect customers from fraud and frees up resources, demonstrating a proactive approach to fraud prevention.",
+    "summary": "O2 (Virgin Media O2) has launched an AI-driven chatbot named Daisy, designed to answer scam callers in real time and keep them busy, thereby protecting customers from fraud. The system uses a human-like AI persona to waste scammers’ time, reducing the risk of fraudulent calls reaching consumers.",
     "companies_mentioned": [
-      "O2",
-      "Virgin Media"
+      "Virgin Media O2"
     ],
     "technologies": {
       "foundation_models": [],
@@ -24178,13 +24183,11 @@
       "AI"
     ],
     "ai_mention_count": 1,
-    "primary_use_case": "other",
-    "primary_use_case_confidence": 0.2,
-    "ai_use_cases": [
-      "other"
-    ],
-    "sentiment": "positive",
-    "summary": "The report from EY and Liberty Global calls for strategic AI adoption in the UK telco sector to achieve major sustainability gains over the next decade, though specific implementations are not detailed.",
+    "primary_use_case": "internal_productivity_workforce",
+    "primary_use_case_confidence": 0.0,
+    "ai_use_cases": [],
+    "sentiment": "neutral",
+    "summary": "N/A",
     "companies_mentioned": [
       "Liberty Global",
       "Telefonica",
@@ -24917,10 +24920,10 @@
       "AI"
     ],
     "ai_mention_count": 1,
-    "primary_use_case": null,
+    "primary_use_case": "internal_productivity_workforce",
     "primary_use_case_confidence": 0.0,
     "ai_use_cases": [],
-    "sentiment": "not_applicable",
+    "sentiment": "neutral",
     "summary": "N/A",
     "companies_mentioned": [],
     "technologies": {
@@ -26652,17 +26655,16 @@
     "ai_mentions": [
       "AI",
       "Artificial Intelligence",
-      "virtual assistant",
-      "chatbots"
+      "virtual assistant"
     ],
-    "ai_mention_count": 4,
+    "ai_mention_count": 3,
     "primary_use_case": "customer_support_experience",
     "primary_use_case_confidence": 0.95,
     "ai_use_cases": [
       "customer_support_experience"
     ],
     "sentiment": "positive",
-    "summary": "BT is deploying AI-powered virtual assistants and chatbots to handle up to 60,000 customer conversations per week, aiming to streamline support processes and enhance the customer experience. The use of AI-based systems in customer support is positioned as a significant improvement over traditional methods.",
+    "summary": "BT Group is deploying AI-powered virtual assistants, such as EE’s Aimee, to handle up to 60,000 customer conversations per week, aiming to improve customer experience and streamline support processes across the Group.",
     "companies_mentioned": [
       "BT",
       "EE"
@@ -27782,19 +27784,19 @@
   "https://www.ispreview.co.uk/index.php/2024/11/o2-uk-deploys-free-ai-powered-scam-call-detector-service.html": {
     "has_ai_content": true,
     "ai_mentions": [
-      "AI"
+      "AI",
+      "AI-powered"
     ],
-    "ai_mention_count": 1,
+    "ai_mention_count": 2,
     "primary_use_case": "security_fraud_threat",
     "primary_use_case_confidence": 0.95,
     "ai_use_cases": [
       "security_fraud_threat"
     ],
     "sentiment": "positive",
-    "summary": "O2 has integrated Hiya’s AI‑powered scam call detection service into its network, offering customers a free tool that identifies and blocks fraud and nuisance calls. The deployment helps protect users from scams and enhances call quality, positioning O2 as a leader in customer protection.",
+    "summary": "O2 (Virgin Media) is rolling out an AI-powered scam call detection service in partnership with Hiya, offering customers free protection against fraud and nuisance calls. The deployment enhances customer security by automatically identifying and blocking scam calls, positioning O2 as a pioneer in AI-enabled call protection within the UK mobile market.",
     "companies_mentioned": [
-      "O2",
-      "Virgin Media"
+      "Virgin Media O2"
     ],
     "technologies": {
       "foundation_models": [],
@@ -28435,17 +28437,16 @@
   "https://www.ispreview.co.uk/index.php/2024/11/virgin-media-o2-uk-offer-free-access-to-ai-search-engine-perplexity-pro.html": {
     "has_ai_content": true,
     "ai_mentions": [
-      "AI",
-      "Perplexity Pro"
+      "AI"
     ],
-    "ai_mention_count": 2,
-    "primary_use_case": "other",
-    "primary_use_case_confidence": 0.9,
+    "ai_mention_count": 1,
+    "primary_use_case": "customer_support_experience",
+    "primary_use_case_confidence": 0.95,
     "ai_use_cases": [
-      "other"
+      "customer_support_experience"
     ],
     "sentiment": "positive",
-    "summary": "Virgin Media O2 is offering its customers free access to Perplexity Pro, an AI‑powered search engine, through the Priority app. This initiative gives subscribers a cost‑free AI tool that enhances their search experience and adds value to existing broadband, mobile, phone and TV packages.",
+    "summary": "Virgin Media and O2 are offering customers free access to the AI‑powered search engine Perplexity Pro through their Priority app, enhancing the customer experience by providing advanced search capabilities. This complimentary tool, normally priced at £150 per year, adds value to subscribers across broadband, mobile, phone and TV packages.",
     "companies_mentioned": [
       "Virgin Media",
       "O2"
@@ -28997,7 +28998,7 @@
       "security_fraud_threat"
     ],
     "sentiment": "positive",
-    "summary": "O2 has deployed a human‑like AI called Daisy to answer fraudster calls in real time, keeping scammers on the line and wasting their time and money, thereby protecting customers from fraud. The AI acts as a deterrent and revenue‑safeguard tool.",
+    "summary": "Virgin Media O2 has deployed a human‑like AI named Daisy to answer fraudster calls in real‑time, keeping scammers on the line and away from customers, thereby wasting their time and money. The AI serves as a defensive tool to protect customers and revenue.",
     "companies_mentioned": [
       "Virgin Media O2"
     ],
@@ -29928,11 +29929,9 @@
   },
   "https://fibrenews.co.uk/fibrenews-podcast-ep-15-mark-pillow-paul-gibbs-voip-unlimited/": {
     "has_ai_content": false,
-    "ai_mentions": [
-      "AI"
-    ],
-    "ai_mention_count": 1,
-    "primary_use_case": null,
+    "ai_mentions": [],
+    "ai_mention_count": 0,
+    "primary_use_case": "internal_productivity_workforce",
     "primary_use_case_confidence": 0.0,
     "ai_use_cases": [],
     "sentiment": "not_applicable",
@@ -30021,7 +30020,7 @@
       "AI"
     ],
     "ai_mention_count": 1,
-    "primary_use_case": null,
+    "primary_use_case": "internal_productivity_workforce",
     "primary_use_case_confidence": 0.0,
     "ai_use_cases": [],
     "sentiment": "not_applicable",
@@ -30224,20 +30223,19 @@
     }
   },
   "https://fibrenews.co.uk/infranomics-analise-latest-bduk-omr-results-showing-3-2million-premises-without-any-commercial-plans-to-build/": {
-    "has_ai_content": false,
+    "has_ai_content": true,
     "ai_mentions": [
       "AI"
     ],
     "ai_mention_count": 1,
-    "primary_use_case": null,
-    "primary_use_case_confidence": 0.0,
-    "ai_use_cases": [],
-    "sentiment": "neutral",
-    "summary": "N/A",
-    "companies_mentioned": [
-      "Fibrenest",
-      "ONFL"
+    "primary_use_case": "network_planning_deployment",
+    "primary_use_case_confidence": 0.7,
+    "ai_use_cases": [
+      "network_planning_deployment"
     ],
+    "sentiment": "neutral",
+    "summary": "Infranomics applies AI‑driven analytics tools (Atlas, Hercules, Hermes) to sift through OMR data, uncovering misclassifications and white premises. This enables telecom providers to refine network build plans and optimise public fund allocation.",
+    "companies_mentioned": [],
     "technologies": {
       "foundation_models": [],
       "platforms": [],

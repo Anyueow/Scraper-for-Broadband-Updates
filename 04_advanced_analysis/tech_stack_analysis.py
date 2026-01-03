@@ -272,7 +272,10 @@ class TechStackAnalyzer:
                 })
 
         df = pd.DataFrame(rows)
-        df = df.sort_values('total_articles', ascending=False)
+
+        # Only sort if we have data
+        if len(df) > 0 and 'total_articles' in df.columns:
+            df = df.sort_values('total_articles', ascending=False)
 
         return df
 
