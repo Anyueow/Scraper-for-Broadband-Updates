@@ -21,15 +21,14 @@ class BroadbandAIAnalyzer:
     - Uses company and technology taxonomies for standardization
     """
 
-    # Use case categories as defined in project requirements
+    # Use case categories as defined in project requirements (NO "other" - must choose one of 6)
     USE_CASE_CATEGORIES = [
         "network_planning_deployment",
         "network_optimization_performance",
         "predictive_maintenance_analytics",
         "customer_support_experience",
         "security_fraud_threat",
-        "internal_productivity_workforce",
-        "other"
+        "internal_productivity_workforce"
     ]
 
     def __init__(self,
@@ -348,7 +347,8 @@ CRITICAL INSTRUCTIONS:
 - Read the ENTIRE article carefully, not just the title
 - Focus on ACTUAL AI applications being implemented or deployed, not just general mentions
 - Look for specific use cases, technologies, and implementations
-- If AI is mentioned but no specific use case is clear, use "other"
+- You MUST choose one of the 6 categories - there is NO "other" option
+- If unclear, pick the CLOSEST matching category based on context and intent
 - Pay attention to the CONTEXT of how AI is being used
 
 Provide a JSON response with the following information:
@@ -385,12 +385,12 @@ Provide a JSON response with the following information:
      SPECIFIC INDICATORS: "security", "cybersecurity", "fraud detection", "threat detection", "DDoS", "intrusion detection", "identity verification", "spam detection", "revenue assurance", "security monitoring"
      Examples: AI detecting fraud patterns, identifying cyber threats, preventing unauthorized access
 
-   - "internal_productivity_workforce" - AI helping employees work more efficiently
-     SPECIFIC INDICATORS: "employee productivity", "workforce tools", "internal tools", "knowledge management", "process automation", "workflow automation", "training tools", "coding assistant", "document automation", "operations efficiency"
-     Examples: AI assistants for employees, automated internal processes, knowledge bases for staff
+   - "internal_productivity_workforce" - AI helping employees work more efficiently OR general AI strategy/partnerships
+     SPECIFIC INDICATORS: "employee productivity", "workforce tools", "internal tools", "knowledge management", "process automation", "workflow automation", "training tools", "coding assistant", "document automation", "operations efficiency", "AI strategy", "AI initiative", "AI investment", "AI partnership"
+     Examples: AI assistants for employees, automated internal processes, knowledge bases for staff, company AI strategies, AI vendor partnerships
+     NOTE: This is also the default for general AI discussions that don't fit other categories
 
-   - "other" - AI mentioned but no clear use case, or general AI strategy/partnership discussions
-   - null - Article doesn't discuss AI at all
+   - null - Article doesn't discuss AI at all (return null for primary_use_case if no AI content)
 
 5. **primary_use_case_confidence** (float 0.0-1.0): How confident are you in the primary use case classification?
    - 0.9-1.0: Very clear, explicit use case described with specific details
@@ -669,13 +669,17 @@ Example response format:
                 if category not in validated['technologies'] or not isinstance(validated['technologies'][category], list):
                     validated['technologies'][category] = []
 
-        # Validate use cases are in allowed categories
+        # Validate use cases are in allowed categories (ONLY 6 categories, no "other")
         valid_use_cases = [uc for uc in validated['ai_use_cases']
                           if uc in self.USE_CASE_CATEGORIES]
         validated['ai_use_cases'] = valid_use_cases
 
+        # Enforce one of 6 categories - default to internal_productivity_workforce if invalid
         if validated['primary_use_case'] not in self.USE_CASE_CATEGORIES:
-            validated['primary_use_case'] = None
+            # Default to internal_productivity_workforce for general/unclear AI discussions
+            validated['primary_use_case'] = 'internal_productivity_workforce'
+            # Lower confidence since this is a fallback
+            validated['primary_use_case_confidence'] = min(validated.get('primary_use_case_confidence', 0.5), 0.5)
 
         # Validate sentiment
         valid_sentiments = ['positive', 'neutral', 'negative', 'mixed', 'not_applicable']
@@ -768,7 +772,23 @@ Example response format:
                             companies_found.append(canonical)
 
                     # Note: increased_scope.csv has descriptive use cases, not standardized codes
-                    # We'll keep them as-is since they're manually curated
+                    # Map to closest standardized category
+                    use_case_raw = str(row.get('primary_use_case', ''))
+                    # Default to internal_productivity_workforce for general/unclear cases
+                    primary_use_case = 'internal_productivity_workforce'
+
+                    # Try to map if we have a recognizable pattern
+                    if 'customer' in use_case_raw.lower() or 'support' in use_case_raw.lower():
+                        primary_use_case = 'customer_support_experience'
+                    elif 'security' in use_case_raw.lower() or 'fraud' in use_case_raw.lower():
+                        primary_use_case = 'security_fraud_threat'
+                    elif 'network' in use_case_raw.lower() and ('optim' in use_case_raw.lower() or 'perform' in use_case_raw.lower()):
+                        primary_use_case = 'network_optimization_performance'
+                    elif 'network' in use_case_raw.lower() and ('plan' in use_case_raw.lower() or 'deploy' in use_case_raw.lower()):
+                        primary_use_case = 'network_planning_deployment'
+                    elif 'maint' in use_case_raw.lower() or 'predict' in use_case_raw.lower() or 'analytic' in use_case_raw.lower():
+                        primary_use_case = 'predictive_maintenance_analytics'
+
                     normalized = {
                         'source': source_name,
                         'date': self.normalize_date(row.get('date', '')),
@@ -777,7 +797,7 @@ Example response format:
                         'content': str(row.get('summary', '')),  # Use summary as content
                         'word_count': word_count,
                         'already_analyzed': True,
-                        'primary_use_case': 'other',  # Default to 'other' for non-standard use cases
+                        'primary_use_case': primary_use_case,  # Map to one of 6 categories
                         'primary_use_case_confidence': confidence,
                         'ai_use_cases': str(row.get('ai_use_cases', '')),
                         'sentiment': str(row.get('sentiment', 'not_applicable')).lower(),

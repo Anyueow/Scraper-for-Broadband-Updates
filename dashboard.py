@@ -44,11 +44,20 @@ st.markdown("""
 @st.cache_data
 def load_ai_articles():
     """Load cleaned AI articles data."""
-    csv_path = "output/ai_articles_updated.csv"
+    # Try new enhanced pipeline output first
+    csv_path = "02_analysis/pipelines/unified_ai_analysis_enhanced.csv"
     if not os.path.exists(csv_path):
-        return None
+        # Fallback to old location
+        csv_path = "output/ai_articles_updated.csv"
+        if not os.path.exists(csv_path):
+            return None
 
     df = pd.read_csv(csv_path)
+
+    # Filter to only AI articles (ai_mention_count > 0)
+    if 'ai_mention_count' in df.columns:
+        df = df[df['ai_mention_count'] > 0].copy()
+
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df['year_month'] = df['date'].dt.to_period('M').astype(str)
 
@@ -71,11 +80,60 @@ def load_company_matrix():
 @st.cache_data
 def load_company_size_data():
     """Load company size and AI activity scores."""
-    csv_path = "output/company_size_activity_scores.csv"
+    # Try company_analysis_complete.csv first (new format)
+    csv_path = "03_processed_data/company_analysis_complete.csv"
     if not os.path.exists(csv_path):
-        return None
+        # Try new build vs buy analysis
+        csv_path = "03_processed_data/build_vs_buy_analysis.csv"
+        if not os.path.exists(csv_path):
+            # Fallback to old location
+            csv_path = "output/company_size_activity_scores.csv"
+            if not os.path.exists(csv_path):
+                return None
 
     df = pd.read_csv(csv_path)
+
+    # Merge Virgin Media and Virgin Media O2
+    df['company'] = df['company'].replace({'Virgin Media O2': 'Virgin Media', 'VMO2': 'Virgin Media'})
+
+    # Group by company to merge duplicates
+    if 'ai_articles_count' in df.columns:
+        # Aggregate: sum article counts, take max/mean for other metrics
+        agg_dict = {
+            'ai_articles_count': 'sum',
+            'revenue_gbp_billions': 'max',
+            'employees': 'max'
+        }
+        # Add any other columns that might exist
+        for col in df.columns:
+            if col not in ['company', 'ai_articles_count', 'revenue_gbp_billions', 'employees']:
+                if df[col].dtype in ['int64', 'float64']:
+                    agg_dict[col] = 'sum'
+
+        df = df.groupby('company', as_index=False).agg(agg_dict)
+
+    # If we loaded company_analysis_complete.csv, calculate scores
+    if 'ai_articles_count' in df.columns and 'revenue_gbp_billions' in df.columns:
+        # Use ai_articles_count directly as AI activity score (not use case categories)
+        df['ai_activity_score'] = df['ai_articles_count'].fillna(0)
+
+        # Calculate size_score from revenue and employees (normalized 0-100)
+        # Normalize revenue (0-250B range) and employees (0-250K range)
+        max_revenue = df['revenue_gbp_billions'].max()
+        max_employees = df['employees'].max()
+
+        # Weight: 60% revenue, 40% employees
+        revenue_score = (df['revenue_gbp_billions'].fillna(0) / max_revenue * 100) * 0.6 if max_revenue > 0 else 0
+        employee_score = (df['employees'].fillna(0) / max_employees * 100) * 0.4 if max_employees > 0 else 0
+
+        df['size_score'] = revenue_score + employee_score
+
+        # Ensure we have the required columns
+        if 'revenue_gbp_billions' not in df.columns:
+            df['revenue_gbp_billions'] = 0
+        if 'employees' not in df.columns:
+            df['employees'] = 0
+
     return df
 
 def create_binary_matrix_chart(matrix_df):
@@ -180,8 +238,22 @@ def create_company_bar_chart(df):
     if df is None or len(df) == 0:
         return None
 
-    # Count companies (excluding unknowns)
-    company_counts = df[df['company'].notna()]['company'].value_counts().reset_index()
+    # Use 'source' column for company data (enhanced CSV structure)
+    # Filter to actual company names (not news sources)
+    company_names = ['BT', 'Virgin Media', 'Vodafone', 'Sky', 'TalkTalk', 'Glide', 'Zen',
+                     'Utility Warehouse', 'Cuckoo', 'YouFibre / Brsk', 'Openreach',
+                     'CityFibre', 'Netomnia', 'nexfibre', 'Hyperoptic', 'Community Fibre',
+                     'FullFibre', 'Gigaclear', 'APFN', 'ITS', 'EE',
+                     'Colt', 'Neos Networks', 'Freshwave', 'Colt Technology Services']
+
+    company_df = df[df['source'].isin(company_names)]
+
+    if len(company_df) == 0:
+        # If no company filter matches, just show top sources
+        company_counts = df['source'].value_counts().reset_index()
+    else:
+        company_counts = company_df['source'].value_counts().reset_index()
+
     company_counts.columns = ['Company', 'Count']
 
     # Top 15 companies
@@ -216,88 +288,259 @@ def create_company_size_activity_matrix(size_data_df):
     if size_data_df is None or len(size_data_df) == 0:
         return None
 
-    # Use the loaded CSV data directly
-    plot_df = size_data_df[['company', 'size_score', 'ai_activity_score', 'revenue_gbp_billions', 'employees']].copy()
-    plot_df.columns = ['Company', 'Size', 'AI Activity', 'Revenue', 'Employees']
+    # Check if we have the expected columns
+    expected_cols = ['company', 'size_score', 'ai_activity_score', 'revenue_gbp_billions', 'employees']
+
+    # If we have build_vs_buy data instead, adapt it
+    if 'total_articles' in size_data_df.columns and 'size_score' not in size_data_df.columns:
+        # Create a simplified version from build_vs_buy data
+        plot_df = pd.DataFrame({
+            'Company': size_data_df['company'],
+            'AI Activity': size_data_df['total_articles'],
+            'Size': 50,  # Placeholder - all medium size
+            'Revenue': 0,  # Placeholder
+            'Employees': 0  # Placeholder
+        })
+    else:
+        # Use the loaded CSV data directly - check which columns exist
+        required_cols = ['company']
+        optional_cols = ['size_score', 'ai_activity_score', 'revenue_gbp_billions', 'employees']
+
+        # Build column list with available columns
+        cols_to_use = [col for col in required_cols + optional_cols if col in size_data_df.columns]
+        plot_df = size_data_df[cols_to_use].copy()
+
+        # Rename columns
+        if 'company' in plot_df.columns:
+            plot_df.rename(columns={'company': 'Company'}, inplace=True)
+        if 'size_score' in plot_df.columns:
+            plot_df.rename(columns={'size_score': 'Size'}, inplace=True)
+        else:
+            plot_df['Size'] = 50  # Default if missing
+        if 'ai_activity_score' in plot_df.columns:
+            plot_df.rename(columns={'ai_activity_score': 'AI Activity'}, inplace=True)
+        else:
+            plot_df['AI Activity'] = 0  # Default if missing
+        if 'revenue_gbp_billions' in plot_df.columns:
+            plot_df.rename(columns={'revenue_gbp_billions': 'Revenue'}, inplace=True)
+        else:
+            plot_df['Revenue'] = 0  # Default if missing
+        if 'employees' in plot_df.columns:
+            plot_df.rename(columns={'employees': 'Employees'}, inplace=True)
+        else:
+            plot_df['Employees'] = 0  # Default if missing
 
     # Add size label
     plot_df['Size Label'] = plot_df['Size'].apply(
         lambda x: 'Large' if x >= 70 else 'Medium' if x >= 30 else 'Small'
     )
 
-    # Calculate quadrants
-    median_activity = plot_df['AI Activity'].median()
-    median_size = plot_df['Size'].median()
+    # Use FIXED midpoints for equal quadrants (not median)
+    max_activity = plot_df['AI Activity'].max()
+
+    # Set x-axis range based on actual data (article counts can be higher)
+    x_min = 0
+    x_max = max(max_activity * 1.1, 10)  # Add 10% padding, at least show up to 10
+
+    # Fixed midpoints for equal quadrants
+    x_midpoint = x_max / 2  # Center of X-axis
+    y_min = 0
+    y_max = 100
+    y_midpoint = 50  # Center of Y-axis (fixed at 50 for 0-100 scale)
 
     # Create scatter plot
     fig = go.Figure()
 
-    # Add quadrant backgrounds
+    # Add quadrant backgrounds with clear divisions (EQUAL quadrants)
+    # Top-left: Large, Low Activity (Gray - Opportunity)
     fig.add_shape(type="rect",
-                  x0=0, y0=median_size, x1=median_activity, y1=100,
-                  fillcolor="rgba(200, 200, 200, 0.1)", line_width=0,
+                  x0=x_min, y0=y_midpoint, x1=x_midpoint, y1=y_max,
+                  fillcolor="rgba(156, 163, 175, 0.15)", line_width=0,
                   layer="below")
+    # Top-right: Large, High Activity (Green - Leaders)
     fig.add_shape(type="rect",
-                  x0=median_activity, y0=median_size, x1=6, y1=100,
-                  fillcolor="rgba(16, 185, 129, 0.1)", line_width=0,
+                  x0=x_midpoint, y0=y_midpoint, x1=x_max, y1=y_max,
+                  fillcolor="rgba(16, 185, 129, 0.15)", line_width=0,
                   layer="below")
+    # Bottom-left: Small, Low Activity (Red - Laggards)
     fig.add_shape(type="rect",
-                  x0=0, y0=0, x1=median_activity, y1=median_size,
-                  fillcolor="rgba(239, 68, 68, 0.1)", line_width=0,
+                  x0=x_min, y0=y_min, x1=x_midpoint, y1=y_midpoint,
+                  fillcolor="rgba(239, 68, 68, 0.15)", line_width=0,
                   layer="below")
+    # Bottom-right: Small, High Activity (Yellow - Ambitious)
     fig.add_shape(type="rect",
-                  x0=median_activity, y0=0, x1=6, y1=median_size,
-                  fillcolor="rgba(251, 191, 36, 0.1)", line_width=0,
+                  x0=x_midpoint, y0=y_min, x1=x_max, y1=y_midpoint,
+                  fillcolor="rgba(251, 191, 36, 0.15)", line_width=0,
                   layer="below")
 
-    # Add scatter points
+    # Add quadrant dividing lines (more prominent) - EQUAL divisions
+    fig.add_hline(y=y_midpoint, line_dash="dash", line_color="rgba(0, 0, 0, 0.5)", line_width=3)
+    fig.add_vline(x=x_midpoint, line_dash="dash", line_color="rgba(0, 0, 0, 0.5)", line_width=3)
+
+    # Add scatter points WITHOUT inline text (we'll add labels separately to avoid overlap)
     fig.add_trace(go.Scatter(
         x=plot_df['AI Activity'],
         y=plot_df['Size'],
-        mode='markers+text',
+        mode='markers',
         marker=dict(
-            size=15,
+            size=12,
             color=plot_df['AI Activity'],
-            colorscale='Blues',
-            showscale=False,
+            colorscale='Viridis',
+            showscale=True,
+            colorbar=dict(title="AI<br>Initiatives"),
             line=dict(width=2, color='white')
         ),
-        text=plot_df['Company'],
-        textposition='top center',
-        textfont=dict(size=10),
-        hovertemplate='<b>%{text}</b><br>AI Categories: %{x}<br>Revenue: £%{customdata[0]}B<br>Employees: %{customdata[1]:,}<extra></extra>',
-        customdata=plot_df[['Revenue', 'Employees']].values
+        name='Companies',
+        hovertemplate='<b>%{customdata[2]}</b><br>AI Initiatives: %{x}<br>Size Score: %{y:.1f}<br>Revenue: £%{customdata[0]:.1f}B<br>Employees: %{customdata[1]:,}<extra></extra>',
+        customdata=plot_df[['Revenue', 'Employees', 'Company']].values
     ))
 
-    # Add quadrant lines
-    fig.add_hline(y=median_size, line_dash="dash", line_color="gray", line_width=2)
-    fig.add_vline(x=median_activity, line_dash="dash", line_color="gray", line_width=2)
+    # Smart label positioning to avoid overlaps
+    # Use annotations with strategic positioning based on quadrant and proximity to other points
+    def get_text_position(row, all_data, median_x, median_y):
+        """Determine best text position to minimize overlap."""
+        x, y = row['AI Activity'], row['Size']
 
-    # Add quadrant labels
-    fig.add_annotation(x=median_activity/2, y=95,
-                      text="Large, Low Activity<br>(Opportunity)",
-                      showarrow=False, font=dict(size=11, color="gray"))
-    fig.add_annotation(x=(median_activity + 6)/2, y=95,
-                      text="Large, High Activity<br>(Leaders)",
-                      showarrow=False, font=dict(size=11, color="green"))
-    fig.add_annotation(x=median_activity/2, y=5,
-                      text="Small, Low Activity<br>(Laggards)",
-                      showarrow=False, font=dict(size=11, color="red"))
-    fig.add_annotation(x=(median_activity + 6)/2, y=5,
-                      text="Small, High Activity<br>(Ambitious)",
-                      showarrow=False, font=dict(size=11, color="orange"))
+        # Count nearby points to determine best position
+        nearby_threshold = 0.8  # Proximity threshold for "nearby" points
+
+        # Default positions by quadrant
+        if x < median_x and y >= median_y:
+            return 'middle left'  # Top-left quadrant
+        elif x >= median_x and y >= median_y:
+            return 'middle right'  # Top-right quadrant
+        elif x < median_x and y < median_y:
+            return 'bottom left'  # Bottom-left quadrant
+        else:
+            return 'bottom right'  # Bottom-right quadrant
+
+    # Add company labels as annotations with collision avoidance
+    for idx, row in plot_df.iterrows():
+        x_pos = row['AI Activity']
+        y_pos = row['Size']
+        company_name = row['Company']
+
+        # Determine label position based on quadrant (using FIXED midpoints)
+        if x_pos < x_midpoint and y_pos >= y_midpoint:
+            # Top-left quadrant
+            ax, ay = -30, 0
+            xanchor, yanchor = 'right', 'middle'
+        elif x_pos >= x_midpoint and y_pos >= y_midpoint:
+            # Top-right quadrant
+            ax, ay = 30, 0
+            xanchor, yanchor = 'left', 'middle'
+        elif x_pos < x_midpoint and y_pos < y_midpoint:
+            # Bottom-left quadrant
+            ax, ay = -30, -5
+            xanchor, yanchor = 'right', 'top'
+        else:
+            # Bottom-right quadrant
+            ax, ay = 30, -5
+            xanchor, yanchor = 'left', 'top'
+
+        # Add slight vertical jitter based on x position to reduce overlaps
+        jitter = (hash(company_name) % 10 - 5) * 2
+        ay += jitter
+
+        fig.add_annotation(
+            x=x_pos,
+            y=y_pos,
+            text=company_name,
+            showarrow=True,
+            arrowhead=2,
+            arrowsize=1,
+            arrowwidth=1,
+            arrowcolor='rgba(0,0,0,0.3)',
+            ax=ax,
+            ay=ay,
+            xanchor=xanchor,
+            yanchor=yanchor,
+            font=dict(size=9, color='black', family='Arial'),
+            bgcolor='rgba(255, 255, 255, 0.8)',
+            bordercolor='rgba(0, 0, 0, 0.2)',
+            borderwidth=1,
+            borderpad=2
+        )
+
+    # Add quadrant labels in corners
+    offset_x = (x_max - x_min) * 0.02
+    offset_y = (y_max - y_min) * 0.03
+
+    fig.add_annotation(x=x_min + offset_x, y=y_max - offset_y,
+                      text="<b>Large Company</b><br>Low AI Activity<br><i>(Opportunity)</i>",
+                      showarrow=False,
+                      font=dict(size=10, color="rgba(100, 100, 100, 0.8)"),
+                      align='left',
+                      xanchor='left',
+                      yanchor='top',
+                      bgcolor='rgba(255, 255, 255, 0.7)',
+                      borderpad=4)
+
+    fig.add_annotation(x=x_max - offset_x, y=y_max - offset_y,
+                      text="<b>Large Company</b><br>High AI Activity<br><i>(Leaders)</i>",
+                      showarrow=False,
+                      font=dict(size=10, color="rgba(16, 150, 100, 0.9)"),
+                      align='right',
+                      xanchor='right',
+                      yanchor='top',
+                      bgcolor='rgba(255, 255, 255, 0.7)',
+                      borderpad=4)
+
+    fig.add_annotation(x=x_min + offset_x, y=y_min + offset_y,
+                      text="<b>Small Company</b><br>Low AI Activity<br><i>(Laggards)</i>",
+                      showarrow=False,
+                      font=dict(size=10, color="rgba(200, 50, 50, 0.8)"),
+                      align='left',
+                      xanchor='left',
+                      yanchor='bottom',
+                      bgcolor='rgba(255, 255, 255, 0.7)',
+                      borderpad=4)
+
+    fig.add_annotation(x=x_max - offset_x, y=y_min + offset_y,
+                      text="<b>Small Company</b><br>High AI Activity<br><i>(Ambitious)</i>",
+                      showarrow=False,
+                      font=dict(size=10, color="rgba(200, 150, 30, 0.9)"),
+                      align='right',
+                      xanchor='right',
+                      yanchor='bottom',
+                      bgcolor='rgba(255, 255, 255, 0.7)',
+                      borderpad=4)
 
     fig.update_layout(
-        title="Company Positioning: Size vs AI Public Activity",
-        xaxis_title="AI Public Activity (Number of AI Use Case Categories)",
-        yaxis_title="Company Size (Revenue & Scale)",
-        height=600,
+        title={
+            'text': "Company Positioning: Size vs AI Public Activity",
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': {'size': 16, 'color': '#1a1a1a'}
+        },
+        xaxis_title="AI Public Activity (Number of AI Initiatives/Articles)",
+        yaxis_title="Company Size Score (Revenue & Scale)",
+        height=700,
+        width=1000,
         template='plotly_white',
-        margin=dict(l=80, r=80, t=80, b=80),
+        margin=dict(l=100, r=150, t=100, b=80),
         font=dict(size=12, family="Arial, sans-serif"),
         showlegend=False,
-        xaxis=dict(range=[-0.5, 6.5], dtick=1),
-        yaxis=dict(range=[0, 105])
+        xaxis=dict(
+            range=[x_min, x_max],
+            dtick=max(1, int(x_max / 10)),  # Auto-adjust tick spacing based on range
+            showgrid=True,
+            gridcolor='rgba(200, 200, 200, 0.3)',
+            zeroline=True,
+            zerolinecolor='rgba(0, 0, 0, 0.3)',
+            zerolinewidth=2,
+            fixedrange=False
+        ),
+        yaxis=dict(
+            range=[y_min, y_max],
+            showgrid=True,
+            gridcolor='rgba(200, 200, 200, 0.3)',
+            zeroline=True,
+            zerolinecolor='rgba(0, 0, 0, 0.3)',
+            zerolinewidth=2,
+            fixedrange=False
+        ),
+        plot_bgcolor='white'
     )
 
     return fig
@@ -320,7 +563,13 @@ def main():
     col1, col2, col3, col4 = st.columns(4)
 
     total_articles = len(df)
-    total_companies = df['company'].nunique() if 'company' in df.columns else 0
+    # Count unique companies from source column (for company-sourced articles)
+    company_names = ['BT', 'Virgin Media', 'Vodafone', 'Sky', 'TalkTalk', 'Glide', 'Zen',
+                     'Utility Warehouse', 'Cuckoo', 'YouFibre / Brsk', 'Openreach',
+                     'CityFibre', 'Netomnia', 'nexfibre', 'Hyperoptic', 'Community Fibre',
+                     'FullFibre', 'Gigaclear', 'APFN', 'ITS', 'EE',
+                     'Colt', 'Neos Networks', 'Freshwave', 'Colt Technology Services']
+    total_companies = df[df['source'].isin(company_names)]['source'].nunique() if 'source' in df.columns else 0
     total_use_cases = df['primary_use_case'].nunique() if 'primary_use_case' in df.columns else 0
 
     with col1:
@@ -372,7 +621,7 @@ def main():
 
     # 2. Company Size vs AI Activity Matrix
     st.subheader("📍 Company Positioning: Size vs AI Public Activity")
-    st.markdown("*2x2 matrix showing company size (revenue/scale) against AI public activity (number of AI use case categories)*")
+    st.markdown("*2x2 matrix showing company size (revenue/scale) against AI public activity (number of AI initiatives/articles)*")
 
     size_data_df = load_company_size_data()
     if size_data_df is not None:
@@ -380,17 +629,36 @@ def main():
         if positioning_matrix:
             st.plotly_chart(positioning_matrix, use_container_width=True)
 
-            # Key insights
+            # Key insights - dynamically generate based on actual data
             col1, col2 = st.columns(2)
+
+            # Calculate which companies are in which quadrant
+            size_data_df['quadrant'] = 'Unknown'
+            x_mid = size_data_df['ai_activity_score'].max() / 2
+            y_mid = 50
+
+            leaders = size_data_df[(size_data_df['ai_activity_score'] >= x_mid) &
+                                  (size_data_df['size_score'] >= y_mid)].nlargest(5, 'ai_activity_score')
+
+            opportunities = size_data_df[(size_data_df['ai_activity_score'] < x_mid) &
+                                        (size_data_df['size_score'] >= y_mid)].nlargest(5, 'size_score')
+
             with col1:
                 st.markdown("**Leaders (Large + High Activity):**")
-                st.write("• VMO2 (5/6 categories)")
-                st.write("• BT, Vodafone (4/6 categories)")
-                st.markdown("*These companies are maximizing their AI visibility*")
+                if len(leaders) > 0:
+                    for idx, row in leaders.iterrows():
+                        st.write(f"• {row['company']} ({int(row['ai_activity_score'])} initiatives)")
+                else:
+                    st.write("• No companies in this quadrant")
+                st.markdown("*These companies are maximizing their AI public visibility*")
 
             with col2:
                 st.markdown("**Opportunities (Large + Low Activity):**")
-                st.write("• Sky, Openreach, TalkTalk, Utility Warehouse")
+                if len(opportunities) > 0:
+                    for idx, row in opportunities.iterrows():
+                        st.write(f"• {row['company']} ({int(row['ai_activity_score'])} initiatives)")
+                else:
+                    st.write("• No companies in this quadrant")
                 st.markdown("*Large companies with potential to increase AI public engagement*")
 
     st.markdown("---")
@@ -456,13 +724,19 @@ def main():
             df = df[(df['date'] >= pd.Timestamp(date_range[0])) &
                    (df['date'] <= pd.Timestamp(date_range[1]))]
 
-    # Company filter
-    if 'company' in df.columns:
-        companies = ['All'] + sorted(df['company'].dropna().unique().tolist())
+    # Company filter (use source column for enhanced CSV)
+    if 'source' in df.columns:
+        # Get unique company names from source column
+        company_names_filter = ['BT', 'Virgin Media', 'Vodafone', 'Sky', 'TalkTalk', 'Glide', 'Zen',
+                               'Utility Warehouse', 'Cuckoo', 'YouFibre / Brsk', 'Openreach',
+                               'CityFibre', 'Netomnia', 'nexfibre', 'Hyperoptic', 'Community Fibre',
+                               'FullFibre', 'Gigaclear', 'APFN', 'ITS', 'EE',
+                               'Colt', 'Neos Networks', 'Freshwave', 'Colt Technology Services']
+        companies = ['All'] + sorted([c for c in df['source'].unique() if c in company_names_filter])
         selected_company = st.sidebar.selectbox("Company", companies)
 
         if selected_company != 'All':
-            df = df[df['company'] == selected_company]
+            df = df[df['source'] == selected_company]
 
     # Use case filter
     if 'primary_use_case' in df.columns:
